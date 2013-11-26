@@ -1,7 +1,10 @@
-# Rocksdb::Ruby
+# RocksDB
 
 The rocksdb is a persistent in-process key-value store.
+
 Read more about it here: http://rocksdb.org/
+
+This gem contains Ruby bindings so that you can use it from your Ruby process.
 
 ## Installation
 
