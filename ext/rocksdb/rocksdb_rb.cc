@@ -9,11 +9,10 @@ extern "C" {
   typedef VALUE (*METHOD)(...);
   
   VALUE rocksdb_init(int argc, VALUE* argv, VALUE self);
-  VALUE rocksdb_put(int argc, VALUE* argv, VALUE self);
+  VALUE rocksdb_put(VALUE self, VALUE v_key, VALUE v_value);
   VALUE rocksdb_get(VALUE self, VALUE v_key);
-  VALUE rocksdb_write(int argc, VALUE* argv, VALUE self);
-  VALUE rocksdb_merge(int argc, VALUE* argv, VALUE self);
-  VALUE rocksdb_delete(int argc, VALUE* argv, VALUE self);
+  VALUE rocksdb_delete(VALUE self, VALUE v_key);
+  VALUE rocksdb_close();
   
   
   rocksdb::DB* db;
@@ -24,15 +23,15 @@ extern "C" {
     
     cRocksdb = rb_define_class("RocksDB", rb_cObject);
     rb_define_private_method(cRocksdb, "initialize", (METHOD)rocksdb_init, -1);
-    rb_define_method(cRocksdb, "Put", (METHOD)rocksdb_put, -1);
-    rb_define_method(cRocksdb, "Get", (METHOD)rocksdb_get, 1);
-    rb_define_method(cRocksdb, "Write", (METHOD)rocksdb_write, -1);
-    rb_define_method(cRocksdb, "Merge", (METHOD)rocksdb_merge, -1);
-    rb_define_method(cRocksdb, "Delete", (METHOD)rocksdb_delete, -1);
+    rb_define_method(cRocksdb, "put", (METHOD)rocksdb_put, 2);
+    rb_define_method(cRocksdb, "get", (METHOD)rocksdb_get, 1);
+    rb_define_method(cRocksdb, "delete", (METHOD)rocksdb_delete, 1);
+    rb_define_method(cRocksdb, "close", (METHOD)rocksdb_close, 0);
   }
 
   VALUE rocksdb_init(int argc, VALUE* argv, VALUE self) {
     VALUE v_db_file_name;
+
     rb_scan_args(argc, argv, "01", &v_db_file_name);
     Check_Type(v_db_file_name, T_STRING);
     std::string db_file_name = std::string((char*)RSTRING_PTR(v_db_file_name));
@@ -44,10 +43,7 @@ extern "C" {
     return status.ok() ? Qtrue : Qfalse;
   }
 
-  VALUE rocksdb_put(int argc, VALUE* argv, VALUE self) {
-    VALUE v_key, v_value, v_options;
- 
-    rb_scan_args(argc, argv, "21", &v_key, &v_value, &v_options);
+  VALUE rocksdb_put(VALUE self, VALUE v_key, VALUE v_value) {
     Check_Type(v_key, T_STRING);
     Check_Type(v_value, T_STRING);
 
@@ -56,7 +52,6 @@ extern "C" {
 
     rocksdb::Status status = db->Put(rocksdb::WriteOptions(), key, value);
     
-    std::cout<<  value << std::endl;
     return status.ok() ? Qtrue : Qfalse;
   }
 
@@ -70,16 +65,17 @@ extern "C" {
     return rb_str_new(value.data(), value.size());
   }
 
-  VALUE rocksdb_write(int argc, VALUE* argv, VALUE self){
-    std::cout<<  ("Hello, Ruby World.\n");
-    return Qnil;
+  VALUE rocksdb_delete(VALUE self, VALUE v_key){
+    Check_Type(v_key, T_STRING);
+
+    std::string key = std::string((char*)RSTRING_PTR(v_key));
+    rocksdb::Status status = db->Delete(rocksdb::WriteOptions(), key);
+
+    return status.ok() ? Qtrue : Qfalse;
   }
-  VALUE rocksdb_merge(int argc, VALUE* argv, VALUE self){
-    std::cout<<  ("Hello, Ruby World.\n");
-    return Qnil;
-  }
-  VALUE rocksdb_delete(int argc, VALUE* argv, VALUE self){
-    std::cout<<  ("Hello, Ruby World.\n");
+
+  VALUE rocksdb_close(){
+    delete db;
     return Qnil;
   }
 }

@@ -4,20 +4,22 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'rocksdb/ruby/version'
 
 Gem::Specification.new do |spec|
+  spec.extensions = ["ext/rocksdb/extconf.rb"]
+
   spec.name          = "rocksdb-ruby"
   spec.version       = Rocksdb::Ruby::VERSION
   spec.authors       = ["Isamu Arimoto"]
-  spec.email         = ["v-iarimoto@uievolution.com"]
-  spec.description   = %q{TODO: Write a gem description}
-  spec.summary       = %q{TODO: Write a gem summary}
-  spec.homepage      = ""
-  spec.license       = "MIT"
+  spec.email         = ["isamu.a@gmail.com"]
+  spec.summary       = %q{A simple RocksDB library for Ruby}
+  spec.homepage      = "https://github.com/isamu/rocksdb-ruby"
+  spec.license       = "mit"
 
   spec.files         = `git ls-files`.split($/)
   spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
   spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
-  spec.require_paths = ["lib"]
+  spec.require_paths = ["ext", "lib"]
 
   spec.add_development_dependency "bundler", "~> 1.3"
   spec.add_development_dependency "rake"
+  spec.add_development_dependency "rspec"
 end

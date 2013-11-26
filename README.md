@@ -1,6 +1,7 @@
 # Rocksdb::Ruby
 
-TODO: Write a gem description
+The rocksdb is a persistent in-process key-value store.
+Read more about it here: http://rocksdb.org/
 
 ## Installation
 
@@ -18,7 +19,16 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+    require "RocksDB"
+
+    key = "test"
+    value = "1"
+    rockdb = RocksDB.new "/tmp/file"
+    rockdb.put(key, value)
+    new_value = rockdb.get(key)
+    rockdb.delete(key)
+    rockdb.close
+
 
 ## Contributing
 
