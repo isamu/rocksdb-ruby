@@ -3,7 +3,7 @@ require "RocksDB"
 
 describe RocksDB do
   before do
-    @rockdb = RocksDB.new "/tmp/file"
+    @rockdb = RocksDB::DB.new "/tmp/file"
   end
 
   it 'should get data' do

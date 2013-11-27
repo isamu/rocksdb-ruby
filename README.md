@@ -28,7 +28,7 @@ Or install it yourself as:
 
     key = "test"
     value = "1"
-    rockdb = RocksDB.new "/tmp/file"
+    rockdb = RocksDB::DB.new "/tmp/file"
     rockdb.put(key, value)
     new_value = rockdb.get(key)
     rockdb.delete(key)

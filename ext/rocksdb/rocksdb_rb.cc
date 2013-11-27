@@ -8,11 +8,11 @@ extern "C" {
   
   typedef VALUE (*METHOD)(...);
   
-  VALUE rocksdb_init(int argc, VALUE* argv, VALUE self);
-  VALUE rocksdb_put(VALUE self, VALUE v_key, VALUE v_value);
-  VALUE rocksdb_get(VALUE self, VALUE v_key);
-  VALUE rocksdb_delete(VALUE self, VALUE v_key);
-  VALUE rocksdb_close();
+  VALUE rocksdb_db_init(int argc, VALUE* argv, VALUE self);
+  VALUE rocksdb_db_put(VALUE self, VALUE v_key, VALUE v_value);
+  VALUE rocksdb_db_get(VALUE self, VALUE v_key);
+  VALUE rocksdb_db_delete(VALUE self, VALUE v_key);
+  VALUE rocksdb_db_close();
   
   
   rocksdb::DB* db;
@@ -20,16 +20,21 @@ extern "C" {
   void Init_RocksDB(){
     
     VALUE cRocksdb;
+    VALUE cRocksdb_db;
     
     cRocksdb = rb_define_class("RocksDB", rb_cObject);
-    rb_define_private_method(cRocksdb, "initialize", (METHOD)rocksdb_init, -1);
-    rb_define_method(cRocksdb, "put", (METHOD)rocksdb_put, 2);
-    rb_define_method(cRocksdb, "get", (METHOD)rocksdb_get, 1);
-    rb_define_method(cRocksdb, "delete", (METHOD)rocksdb_delete, 1);
-    rb_define_method(cRocksdb, "close", (METHOD)rocksdb_close, 0);
-  }
+    cRocksdb_db = rb_define_class_under(cRocksdb, "DB", rb_cObject);
 
-  VALUE rocksdb_init(int argc, VALUE* argv, VALUE self) {
+
+    
+    rb_define_private_method(cRocksdb_db, "initialize", (METHOD)rocksdb_db_init, -1);
+    rb_define_method(cRocksdb_db, "put", (METHOD)rocksdb_db_put, 2);
+    rb_define_method(cRocksdb_db, "get", (METHOD)rocksdb_db_get, 1);
+    rb_define_method(cRocksdb_db, "delete", (METHOD)rocksdb_db_delete, 1);
+    rb_define_method(cRocksdb_db, "close", (METHOD)rocksdb_db_close, 0);
+  }
+  
+  VALUE rocksdb_db_init(int argc, VALUE* argv, VALUE self) {
     VALUE v_db_file_name;
 
     rb_scan_args(argc, argv, "01", &v_db_file_name);
@@ -43,7 +48,7 @@ extern "C" {
     return status.ok() ? Qtrue : Qfalse;
   }
 
-  VALUE rocksdb_put(VALUE self, VALUE v_key, VALUE v_value) {
+  VALUE rocksdb_db_put(VALUE self, VALUE v_key, VALUE v_value) {
     Check_Type(v_key, T_STRING);
     Check_Type(v_value, T_STRING);
 
@@ -55,7 +60,7 @@ extern "C" {
     return status.ok() ? Qtrue : Qfalse;
   }
 
-  VALUE rocksdb_get(VALUE self, VALUE v_key){
+  VALUE rocksdb_db_get(VALUE self, VALUE v_key){
     Check_Type(v_key, T_STRING);
 
     std::string key = std::string((char*)RSTRING_PTR(v_key));
@@ -65,7 +70,7 @@ extern "C" {
     return rb_str_new(value.data(), value.size());
   }
 
-  VALUE rocksdb_delete(VALUE self, VALUE v_key){
+  VALUE rocksdb_db_delete(VALUE self, VALUE v_key){
     Check_Type(v_key, T_STRING);
 
     std::string key = std::string((char*)RSTRING_PTR(v_key));
@@ -74,7 +79,7 @@ extern "C" {
     return status.ok() ? Qtrue : Qfalse;
   }
 
-  VALUE rocksdb_close(){
+  VALUE rocksdb_db_close(){
     delete db;
     return Qnil;
   }
