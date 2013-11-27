@@ -8,6 +8,8 @@ This gem contains Ruby bindings so that you can use it from your Ruby process.
 
 ## Installation
 
+First install rocksdb.
+
 Add this line to your application's Gemfile:
 
     gem 'rocksdb-ruby'
