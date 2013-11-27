@@ -32,8 +32,25 @@ describe RocksDB do
     @rocksdb.multi_get(["test:multi1", "test:multi2", "test:multi3"]).should eq ["a", "b", "c"]
   end
 
+  it 'should put data atomic update' do
+    @rocksdb.put("test:batch1", "a")
+    @rocksdb.delete("test:batch2")
+
+    @rocksdb.get("test:batch1").should eq "a"
+    @rocksdb.get("test:batch").should eq ""
+
+    batch = RocksDB::Batch.new
+    batch.delete("test:batch1")
+    batch.put("test:batch2", "b")
+    @rocksdb.write(batch)
+
+    @rocksdb.get("test:batch1").should eq ""
+    @rocksdb.get("test:batch2").should eq "b"
+  end
+
   after do
     @rocksdb.close
   end
 
 end
+

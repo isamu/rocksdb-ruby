@@ -28,11 +28,17 @@ Or install it yourself as:
 
     key = "test"
     value = "1"
-    rockdb = RocksDB::DB.new "/tmp/file"
-    rockdb.put(key, value)
-    new_value = rockdb.get(key)
-    rockdb.delete(key)
-    rockdb.close
+    rocksdb = RocksDB::DB.new "/tmp/file"
+    rocksdb.put(key, value)
+    new_value = rocksdb.get(key)
+    rocksdb.delete(key)
+
+    batch = RocksDB::Batch.new
+    batch.delete("test:batch1")
+    batch.put("test:batch2", "b")
+    rocksdb.write(batch)
+
+    rocksdb.close
 
 
 ## Contributing
