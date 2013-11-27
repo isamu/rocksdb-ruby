@@ -24,6 +24,15 @@ describe RocksDB do
     @rockdb.get("test:delete").should be_empty
   end
 
+  it 'should get multi data' do
+    @rockdb.put("test:multi1", "a")
+    @rockdb.put("test:multi2", "b")
+    @rockdb.put("test:multi3", "c")
+
+    res = @rockdb.multi_get(["test:multi1", "test:multi2", "test:multi3"])
+    p res
+  end
+
   after do
     @rockdb.close
   end
