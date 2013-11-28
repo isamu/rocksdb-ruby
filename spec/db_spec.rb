@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 require 'spec_helper'
 require "RocksDB"
 
@@ -56,6 +57,11 @@ describe RocksDB do
     
     @rocksdb.get("test:multi_db").should eq "1"
     @rocksdb2.get("test:multi_db").should eq "2"
+  end
+
+  it 'should use japanese charactor' do
+    @rocksdb.put("test:japanese", "あいうえお")
+    @rocksdb.get("test:japanese").should eq "あいうえお"
   end
 
 

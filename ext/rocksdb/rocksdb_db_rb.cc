@@ -1,4 +1,6 @@
 #include "rocksdb_db_rb.h"
+#include "ruby/encoding.h"
+
 
 extern "C" {
 #include <ruby.h>
@@ -65,8 +67,8 @@ extern "C" {
     std::string key = std::string((char*)RSTRING_PTR(v_key));
     std::string value;
     db_pointer->db->Get(rocksdb::ReadOptions(), key, &value);    
-
-    return rb_str_new(value.data(), value.size());
+    
+    return rb_enc_str_new(value.data(), value.size(), rb_utf8_encoding());
   }
 
 
