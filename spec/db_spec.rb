@@ -48,6 +48,17 @@ describe RocksDB do
     @rocksdb.get("test:batch2").should eq "b"
   end
 
+  it 'should use multiple db' do
+    @rocksdb2 = RocksDB::DB.new "/tmp/file2"
+    
+    @rocksdb.put("test:multi_db", "1")
+    @rocksdb2.put("test:multi_db", "2")
+    
+    @rocksdb.get("test:multi_db").should eq "1"
+    @rocksdb2.get("test:multi_db").should eq "2"
+  end
+
+
   after do
     @rocksdb.close
   end
