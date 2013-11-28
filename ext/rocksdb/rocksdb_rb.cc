@@ -1,6 +1,7 @@
 #include "rocksdb_rb.h"
 #include "rocksdb_db_rb.h"
 #include "rocksdb_batch_rb.h"
+#include "rocksdb_status_rb.h"
 
 extern "C" {
   void Init_RocksDB(){
@@ -8,6 +9,10 @@ extern "C" {
     VALUE cRocksdb;
     VALUE cRocksdb_db;
     VALUE cRocksdb_write_batch;
+    VALUE cRocksdb_status;
+    VALUE cRocksdb_read_options;
+    VALUE cRocksdb_write_options;
+    VALUE cRocksdb_iterator;
     
     cRocksdb = rb_define_class("RocksDB", rb_cObject);
     cRocksdb_db = rb_define_class_under(cRocksdb, "DB", rb_cObject);
@@ -26,5 +31,11 @@ extern "C" {
     rb_define_private_method(cRocksdb_write_batch, "initialize", (METHOD)rocksdb_write_batch_init, 0);
     rb_define_method(cRocksdb_write_batch, "put", (METHOD)rocksdb_write_batch_put, 2);
     rb_define_method(cRocksdb_write_batch, "delete", (METHOD)rocksdb_write_batch_delete, 1);
+
+    cRocksdb_status = rb_define_class_under(cRocksdb, "Status", rb_cObject);
+    cRocksdb_read_options = rb_define_class_under(cRocksdb, "ReadOptions", rb_cObject);
+    cRocksdb_write_options = rb_define_class_under(cRocksdb, "WriteOptions", rb_cObject);
+    cRocksdb_iterator = rb_define_class_under(cRocksdb, "Iterator", rb_cObject);
+
   }
 }
