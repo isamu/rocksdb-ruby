@@ -63,5 +63,8 @@ describe RocksDB do
     @rocksdb.close
   end
 
+  #rocksdb::WriteOptions write_options;
+  #write_options.sync = true;
+
 end
 
