@@ -70,6 +70,7 @@ describe RocksDB do
 
     iterator.seek_to_first
     
+    expect(iterator.valid).to be_true
     while(iterator.valid)
       expect(iterator.value).not_to be_empty
       expect(iterator.key).not_to be_empty
@@ -77,6 +78,19 @@ describe RocksDB do
     end
     iterator.close
   end
+
+  it 'should seek iterator' do
+    iterator = @rocksdb.new_iterator
+
+    iterator.seek("test:put")
+    
+    iterator.valid
+    expect(iterator.value).to eq "2"
+    expect(iterator.key).to eq "test:put"
+
+    iterator.close
+  end
+
 
   after do
     @rocksdb.close

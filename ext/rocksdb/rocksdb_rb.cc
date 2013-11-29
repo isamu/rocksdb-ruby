@@ -39,6 +39,8 @@ extern "C" {
     cRocksdb_iterator = rb_define_class_under(cRocksdb, "Iterator", rb_cObject);
     rb_define_alloc_func(cRocksdb_iterator, rocksdb_iterator_alloc);
     rb_define_method(cRocksdb_iterator, "seek_to_first", (METHOD)rocksdb_iterator_seek_to_first, 0);
+    rb_define_method(cRocksdb_iterator, "seek_to_last", (METHOD)rocksdb_iterator_seek_to_last, 0);
+    rb_define_method(cRocksdb_iterator, "seek", (METHOD)rocksdb_iterator_seek, 1);
     rb_define_method(cRocksdb_iterator, "valid", (METHOD)rocksdb_iterator_valid, 0);
     rb_define_method(cRocksdb_iterator, "key", (METHOD)rocksdb_iterator_key, 0);
     rb_define_method(cRocksdb_iterator, "value", (METHOD)rocksdb_iterator_value, 0);

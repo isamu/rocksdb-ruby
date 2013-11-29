@@ -13,6 +13,26 @@ extern "C" {
 
     return Qnil;
   }
+
+  VALUE rocksdb_iterator_seek_to_last(VALUE klass){
+    rocksdb_iterator_pointer* rocksdb_it;
+    Data_Get_Struct(klass, rocksdb_iterator_pointer , rocksdb_it);
+    rocksdb_it->it->SeekToLast();
+
+    return Qnil;
+  }
+
+  VALUE rocksdb_iterator_seek(VALUE klass, VALUE v_target){
+    Check_Type(v_target, T_STRING);
+    rocksdb::Slice target = rocksdb::Slice((char*)RSTRING_PTR(v_target));
+
+    rocksdb_iterator_pointer* rocksdb_it;
+    Data_Get_Struct(klass, rocksdb_iterator_pointer , rocksdb_it);
+    rocksdb_it->it->Seek(target);
+
+    return Qnil;
+  }
+
   VALUE rocksdb_iterator_alloc(VALUE klass){
     rocksdb_iterator_pointer* it = ALLOC(rocksdb_iterator_pointer);
     return Data_Wrap_Struct(klass, 0, -1, it);
