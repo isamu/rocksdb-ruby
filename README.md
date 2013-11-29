@@ -26,6 +26,7 @@ Or install it yourself as:
 
     require "RocksDB"
 
+    # Reads And Writes
     key = "test"
     value = "1"
     rocksdb = RocksDB::DB.new "/tmp/file"
@@ -33,11 +34,24 @@ Or install it yourself as:
     new_value = rocksdb.get(key)
     rocksdb.delete(key)
 
+    #Atomic Updates
     batch = RocksDB::Batch.new
     batch.delete("test:batch1")
     batch.put("test:batch2", "b")
     rocksdb.write(batch)
 
+    #Iteration
+    iterator = rocksdb.new_iterator
+
+    iterator.seek_to_first
+    while(iterator.valid)
+      iterator.value
+      iterator.key
+      iterator.next
+    end
+    iterator.close
+
+    
     rocksdb.close
 
 

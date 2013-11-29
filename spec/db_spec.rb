@@ -4,25 +4,25 @@ require "RocksDB"
 
 describe RocksDB do
   before do
-    @rocksdb = RocksDB::DB.new "/tmp/file"
+    @rocksdb = RocksDB::DB.new "/tmp/file3"
   end
 
   it 'should get data' do
     @rocksdb.put("test:read", "1")
-    @rocksdb.get("test:read").should eq "1"
+    expect(@rocksdb.get("test:read")).to eq "1"
   end
 
   it 'should put data' do 
-    @rocksdb.put("test:put", "2").should be_true
-    @rocksdb.get("test:put").should eq "2"
+    expect(@rocksdb.put("test:put", "2")).to be_true
+    expect(@rocksdb.get("test:put")).to eq "2"
   end
 
   it 'should delete data' do 
     @rocksdb.put("test:delete", "3")
-    @rocksdb.get("test:delete").should eq "3"
+    expect(@rocksdb.get("test:delete")).to eq "3"
 
-    @rocksdb.delete("test:delete").should be_true
-    @rocksdb.get("test:delete").should be_empty
+    expect(@rocksdb.delete("test:delete")).to be_true
+    expect(@rocksdb.get("test:delete")).to be_empty
   end
 
   it 'should get multi data' do
@@ -30,23 +30,23 @@ describe RocksDB do
     @rocksdb.put("test:multi2", "b")
     @rocksdb.put("test:multi3", "c")
 
-    @rocksdb.multi_get(["test:multi1", "test:multi2", "test:multi3"]).should eq ["a", "b", "c"]
+    expect(@rocksdb.multi_get(["test:multi1", "test:multi2", "test:multi3"])).to eq ["a", "b", "c"]
   end
 
   it 'should put data atomic update' do
     @rocksdb.put("test:batch1", "a")
     @rocksdb.delete("test:batch2")
 
-    @rocksdb.get("test:batch1").should eq "a"
-    @rocksdb.get("test:batch").should eq ""
+    expect(@rocksdb.get("test:batch1")).to eq "a"
+    expect(@rocksdb.get("test:batch")).to eq ""
 
     batch = RocksDB::Batch.new
     batch.delete("test:batch1")
     batch.put("test:batch2", "b")
     @rocksdb.write(batch)
 
-    @rocksdb.get("test:batch1").should eq ""
-    @rocksdb.get("test:batch2").should eq "b"
+    expect(@rocksdb.get("test:batch1")).to eq ""
+    expect(@rocksdb.get("test:batch2")).to eq "b"
   end
 
   it 'should use multiple db' do
@@ -55,22 +55,31 @@ describe RocksDB do
     @rocksdb.put("test:multi_db", "1")
     @rocksdb2.put("test:multi_db", "2")
     
-    @rocksdb.get("test:multi_db").should eq "1"
-    @rocksdb2.get("test:multi_db").should eq "2"
+    expect(@rocksdb.get("test:multi_db")).to eq "1"
+    expect(@rocksdb2.get("test:multi_db")).to eq "2"
   end
 
   it 'should use japanese charactor' do
     @rocksdb.put("test:japanese", "あいうえお")
-    @rocksdb.get("test:japanese").should eq "あいうえお"
+
+    expect(@rocksdb.get("test:japanese")).to eq "あいうえお"
   end
 
+  it 'should use iterator' do
+    iterator = @rocksdb.new_iterator
+
+    iterator.seek_to_first
+    
+    while(iterator.valid)
+      expect(iterator.value).not_to be_empty
+      expect(iterator.key).not_to be_empty
+      iterator.next
+    end
+    iterator.close
+  end
 
   after do
     @rocksdb.close
   end
-
-  #rocksdb::WriteOptions write_options;
-  #write_options.sync = true;
-
 end
 

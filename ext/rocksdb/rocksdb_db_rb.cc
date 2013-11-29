@@ -1,6 +1,7 @@
+#include "rocksdb_rb.h"
 #include "rocksdb_db_rb.h"
 #include "ruby/encoding.h"
-
+#include <iostream>
 
 extern "C" {
 #include <ruby.h>
@@ -34,7 +35,6 @@ extern "C" {
     Check_Type(v_value, T_STRING);
 
     rocksdb_pointer* db_pointer;
-    rocksdb::DB* db;
     Data_Get_Struct(self, rocksdb_pointer, db_pointer);
     
     std::string key = std::string((char*)RSTRING_PTR(v_key));
@@ -47,7 +47,6 @@ extern "C" {
 
   VALUE rocksdb_db_write(VALUE self, VALUE v_write){
     rocksdb_pointer* db_pointer;
-    rocksdb::DB* db;
     Data_Get_Struct(self, rocksdb_pointer, db_pointer);
 
     rocksdb::WriteBatch *batch;
@@ -61,7 +60,6 @@ extern "C" {
     Check_Type(v_key, T_STRING);
 
     rocksdb_pointer* db_pointer;
-    rocksdb::DB* db;
     Data_Get_Struct(self, rocksdb_pointer, db_pointer);
     
     std::string key = std::string((char*)RSTRING_PTR(v_key));
@@ -76,7 +74,6 @@ extern "C" {
     Check_Type(v_array, T_ARRAY);
 
     rocksdb_pointer* db_pointer;
-    rocksdb::DB* db;
     Data_Get_Struct(self, rocksdb_pointer, db_pointer);
 
     long i;
@@ -102,7 +99,6 @@ extern "C" {
     Check_Type(v_key, T_STRING);
     
     rocksdb_pointer* db_pointer;
-    rocksdb::DB* db;
     Data_Get_Struct(self, rocksdb_pointer, db_pointer);
 
     std::string key = std::string((char*)RSTRING_PTR(v_key));
@@ -113,10 +109,38 @@ extern "C" {
   
   VALUE rocksdb_db_close(VALUE self){
     rocksdb_pointer* db_pointer;
-    rocksdb::DB* db;
     Data_Get_Struct(self, rocksdb_pointer, db_pointer);
 
     delete db_pointer->db;
+    return Qnil;
+  }
+
+  VALUE rocksdb_db_new_iterator(VALUE self){
+    rocksdb_pointer* db_pointer;
+    rocksdb_iterator_pointer* rocksdb_it;
+
+    VALUE klass;
+    Data_Get_Struct(self, rocksdb_pointer, db_pointer);
+
+    rocksdb::Iterator* it = db_pointer->db->NewIterator(rocksdb::ReadOptions());
+
+    klass = rb_class_new_instance(0, NULL, cRocksdb_iterator);
+
+    Data_Get_Struct(klass, rocksdb_iterator_pointer , rocksdb_it);
+    rocksdb_it->it = it;
+    return klass;
+  }
+
+  VALUE rocksdb_db_debug(VALUE self){
+
+    rocksdb_pointer* db_pointer;
+    Data_Get_Struct(self, rocksdb_pointer, db_pointer);
+    rocksdb::Iterator* it = db_pointer->db->NewIterator(rocksdb::ReadOptions());
+
+    for (it->SeekToFirst(); it->Valid(); it->Next()) {
+      std::cout << it->key().ToString() << ": "  << it->value().ToString() << std::endl;
+    }
+    delete it;
     return Qnil;
   }
 }
