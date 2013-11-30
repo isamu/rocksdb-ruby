@@ -131,6 +131,29 @@ extern "C" {
     return klass;
   }
 
+
+  VALUE rocksdb_db_each(VALUE self){
+    rocksdb_pointer* db_pointer;
+    Data_Get_Struct(self, rocksdb_pointer, db_pointer);
+    rocksdb::Iterator* it = db_pointer->db->NewIterator(rocksdb::ReadOptions());
+
+
+    long i;
+    volatile VALUE ary = rb_ary_new();
+
+    i = 0;
+    for (it->SeekToFirst(); it->Valid(); it->Next()) {
+      VALUE v = rb_enc_str_new(it->value().data(), it->value().size(), rb_utf8_encoding());
+      rb_ary_store(ary, i, v);
+      rb_yield(RARRAY_PTR(ary)[i]);
+      i++;
+    }
+    delete it;
+
+    return ary;
+
+  }
+
   VALUE rocksdb_db_debug(VALUE self){
 
     rocksdb_pointer* db_pointer;

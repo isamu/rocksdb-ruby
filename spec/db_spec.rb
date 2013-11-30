@@ -64,6 +64,12 @@ describe RocksDB do
 
     expect(@rocksdb.get("test:japanese")).to eq "あいうえお"
   end
+
+  it 'should use each' do
+    @rocksdb.each do |value|
+      expect(value).not_to be_empty
+    end
+  end
   
   after do
     @rocksdb.close

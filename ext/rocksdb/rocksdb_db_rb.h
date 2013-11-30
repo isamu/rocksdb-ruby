@@ -13,5 +13,6 @@ extern "C" {
   VALUE rocksdb_db_close(VALUE self);
   VALUE rocksdb_db_debug(VALUE self);
   VALUE rocksdb_db_new_iterator(VALUE self);
+  VALUE rocksdb_db_each(VALUE self);
 
 }
