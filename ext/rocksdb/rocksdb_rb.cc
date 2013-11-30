@@ -29,7 +29,9 @@ extern "C" {
     rb_define_method(cRocksdb_db, "close", (METHOD)rocksdb_db_close, 0);
     rb_define_method(cRocksdb_db, "debug", (METHOD)rocksdb_db_debug, 0);
     rb_define_method(cRocksdb_db, "new_iterator", (METHOD)rocksdb_db_new_iterator, 0);
+
     rb_define_method(cRocksdb_db, "each", (METHOD)rocksdb_db_each, 0);
+    rb_define_method(cRocksdb_db, "reverse_each", (METHOD)rocksdb_db_reverse_each, 0);
 
     cRocksdb_write_batch = rb_define_class_under(cRocksdb, "Batch", rb_cObject);
     rb_define_alloc_func(cRocksdb_write_batch, batch_alloc);

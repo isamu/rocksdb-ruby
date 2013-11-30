@@ -66,9 +66,20 @@ describe RocksDB do
   end
 
   it 'should use each' do
+    array = []
     @rocksdb.each do |value|
       expect(value).not_to be_empty
+      array << value
     end
+
+    rev_array = []
+    @rocksdb.reverse_each do |value|
+      expect(value).not_to be_empty
+      rev_array << value
+    end
+
+    expect(array).to eq rev_array.reverse
+    
   end
   
   after do
