@@ -24,7 +24,7 @@ Or install it yourself as:
 
 ## Usage
 
-    require "RocksDB"
+    require "rocksdb"
 
     # Reads And Writes
     key = "test"

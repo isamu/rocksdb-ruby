@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 require 'spec_helper'
-require "RocksDB"
+require "rocksdb"
 
 describe RocksDB do
   before do
@@ -87,6 +87,10 @@ describe RocksDB do
     @rocksdb.delete("test:noexists?")
     expect(@rocksdb.exists?("test:exists?")).to be_true
     expect(@rocksdb.exists?("test:noexists?")).to be_false
+
+    expect(@rocksdb.includes?("test:exists?")).to be_true
+    expect(@rocksdb.includes?("test:noexists?")).to be_false
+
   end
   
   after do
