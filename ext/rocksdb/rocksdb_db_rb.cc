@@ -106,7 +106,19 @@ extern "C" {
     
     return status.ok() ? Qtrue : Qfalse;
   }
-  
+
+  VALUE rocksdb_db_exists(VALUE self, VALUE v_key){
+    Check_Type(v_key, T_STRING);
+
+    rocksdb_pointer* db_pointer;
+    Data_Get_Struct(self, rocksdb_pointer, db_pointer);
+
+    std::string key = std::string((char*)RSTRING_PTR(v_key));
+    std::string value = std::string();
+    
+    return db_pointer->db->KeyMayExist(rocksdb::ReadOptions(), key, &value) ? Qtrue : Qfalse;
+  }  
+
   VALUE rocksdb_db_close(VALUE self){
     rocksdb_pointer* db_pointer;
     Data_Get_Struct(self, rocksdb_pointer, db_pointer);
@@ -174,15 +186,5 @@ extern "C" {
   }
 
   VALUE rocksdb_db_debug(VALUE self){
-
-    rocksdb_pointer* db_pointer;
-    Data_Get_Struct(self, rocksdb_pointer, db_pointer);
-    rocksdb::Iterator* it = db_pointer->db->NewIterator(rocksdb::ReadOptions());
-
-    for (it->SeekToFirst(); it->Valid(); it->Next()) {
-      std::cout << it->key().ToString() << ": "  << it->value().ToString() << std::endl;
-    }
-    delete it;
-    return Qnil;
   }
 }

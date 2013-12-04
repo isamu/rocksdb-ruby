@@ -26,6 +26,7 @@ extern "C" {
     rb_define_method(cRocksdb_db, "get", (METHOD)rocksdb_db_get, 1);
     rb_define_method(cRocksdb_db, "multi_get", (METHOD)rocksdb_db_multi_get, 1);
     rb_define_method(cRocksdb_db, "delete", (METHOD)rocksdb_db_delete, 1);
+    rb_define_method(cRocksdb_db, "exists?", (METHOD)rocksdb_db_exists, 1);
     rb_define_method(cRocksdb_db, "close", (METHOD)rocksdb_db_close, 0);
     rb_define_method(cRocksdb_db, "debug", (METHOD)rocksdb_db_debug, 0);
     rb_define_method(cRocksdb_db, "new_iterator", (METHOD)rocksdb_db_new_iterator, 0);

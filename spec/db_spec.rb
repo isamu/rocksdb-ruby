@@ -81,6 +81,13 @@ describe RocksDB do
     expect(array).to eq rev_array.reverse
     
   end
+
+  it 'should exists?' do
+    @rocksdb.put("test:exists?", "a")
+    @rocksdb.delete("test:noexists?")
+    expect(@rocksdb.exists?("test:exists?")).to be_true
+    expect(@rocksdb.exists?("test:noexists?")).to be_false
+  end
   
   after do
     @rocksdb.close
