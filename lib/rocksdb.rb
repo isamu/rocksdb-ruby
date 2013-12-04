@@ -1,11 +1,10 @@
 require "RocksDB/RocksDB" # the c extension
 require "rocksdb/ruby/version"
 
-class RocksDB
+module RocksDB
   class DB
     class << self
     end
-
 
     alias :includes? :exists?
     alias :contains? :exists?

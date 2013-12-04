@@ -16,7 +16,7 @@ extern "C" {
     VALUE cRocksdb_write_options;
     VALUE cRocksdb_status;
     
-    cRocksdb = rb_define_class("RocksDB", rb_cObject);
+    cRocksdb = rb_define_module("RocksDB");
     cRocksdb_db = rb_define_class_under(cRocksdb, "DB", rb_cObject);
     rb_define_alloc_func(cRocksdb_db, db_alloc);
 
