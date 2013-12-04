@@ -64,9 +64,10 @@ extern "C" {
     
     std::string key = std::string((char*)RSTRING_PTR(v_key));
     std::string value;
-    db_pointer->db->Get(rocksdb::ReadOptions(), key, &value);    
-    
-    return rb_enc_str_new(value.data(), value.size(), rb_utf8_encoding());
+    rocksdb::Status status = db_pointer->db->Get(rocksdb::ReadOptions(), key, &value);    
+
+    return (status.IsNotFound()) ? Qnil : rb_enc_str_new(value.data(), value.size(), rb_utf8_encoding());
+
   }
 
 
@@ -186,5 +187,6 @@ extern "C" {
   }
 
   VALUE rocksdb_db_debug(VALUE self){
+    return Qnil;
   }
 }

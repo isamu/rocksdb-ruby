@@ -22,7 +22,7 @@ describe RocksDB do
     expect(@rocksdb.get("test:delete")).to eq "3"
 
     expect(@rocksdb.delete("test:delete")).to be_true
-    expect(@rocksdb.get("test:delete")).to be_empty
+    expect(@rocksdb.get("test:delete")).to be_nil
   end
 
   it 'should get multi data' do
@@ -38,14 +38,14 @@ describe RocksDB do
     @rocksdb.delete("test:batch2")
 
     expect(@rocksdb.get("test:batch1")).to eq "a"
-    expect(@rocksdb.get("test:batch")).to eq ""
+    expect(@rocksdb.get("test:batch")).to be_nil
 
     batch = RocksDB::Batch.new
     batch.delete("test:batch1")
     batch.put("test:batch2", "b")
     @rocksdb.write(batch)
 
-    expect(@rocksdb.get("test:batch1")).to eq ""
+    expect(@rocksdb.get("test:batch1")).to be_nil
     expect(@rocksdb.get("test:batch2")).to eq "b"
   end
 
@@ -90,6 +90,14 @@ describe RocksDB do
 
     expect(@rocksdb.includes?("test:exists?")).to be_true
     expect(@rocksdb.includes?("test:noexists?")).to be_false
+
+  end
+
+  it 'hash' do
+    @rocksdb.delete("test:hash")
+    expect(@rocksdb["test:hash"]).to be_nil
+    @rocksdb["test:hash"] = "a"
+    expect(@rocksdb["test:hash"]).to eq "a"
 
   end
   
