@@ -51,6 +51,15 @@ Or install it yourself as:
     end
     iterator.close
 
+    #Block
+    rocksdb.each do |data|
+      puts data
+    end
+
+    #Hash access
+    rocksdb['key'] = data
+    puts rocksdb['key']
+
     
     rocksdb.close
 
