@@ -91,7 +91,7 @@ extern "C" {
 
     status = db_pointer->db->MultiGet(rocksdb::ReadOptions(),keys,&values);
     for(i=0; i < length; i++){
-      RARRAY_PTR(v_array)[i] = rb_str_new(values[i].data(), values[i].size());
+      RARRAY_PTR(v_array)[i] = rb_enc_str_new(values[i].data(), values[i].size(), rb_utf8_encoding());
     }
     return v_array;
   }

@@ -63,6 +63,7 @@ describe RocksDB do
     @rocksdb.put("test:japanese", "あいうえお")
 
     expect(@rocksdb.get("test:japanese")).to eq "あいうえお"
+    expect(@rocksdb.multi_get(["test:japanese"])).to eq ["あいうえお"]
   end
 
   it 'should use each' do
