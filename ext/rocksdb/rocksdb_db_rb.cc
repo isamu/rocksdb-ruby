@@ -150,19 +150,12 @@ extern "C" {
     Data_Get_Struct(self, rocksdb_pointer, db_pointer);
     rocksdb::Iterator* it = db_pointer->db->NewIterator(rocksdb::ReadOptions());
 
-    long i;
-    volatile VALUE ary = rb_ary_new();
-
-    i = 0;
     for (it->SeekToFirst(); it->Valid(); it->Next()) {
-      VALUE v = rb_enc_str_new(it->value().data(), it->value().size(), rb_utf8_encoding());
-      rb_ary_store(ary, i, v);
-      rb_yield(RARRAY_PTR(ary)[i]);
-      i++;
+      rb_yield(rb_enc_str_new(it->value().data(), it->value().size(), rb_utf8_encoding()));
     }
     delete it;
-
-    return ary;
+    
+    return self;
   }
 
   VALUE rocksdb_db_reverse_each(VALUE self){
