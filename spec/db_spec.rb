@@ -67,6 +67,8 @@ describe RocksDB do
   end
 
   it 'should use each' do
+    iter = @rocksdb.each 
+
     array = []
     @rocksdb.each do |value|
       expect(value).not_to be_empty
@@ -80,7 +82,7 @@ describe RocksDB do
     end
 
     expect(array).to eq rev_array.reverse
-    
+    iter.close
   end
 
   it 'should exists?' do

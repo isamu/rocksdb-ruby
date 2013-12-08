@@ -27,7 +27,7 @@ extern "C" {
 
   VALUE db_alloc(VALUE klass){
     rocksdb_pointer* db_pointer = ALLOC(rocksdb_pointer);
-    return Data_Wrap_Struct(klass, 0, -1, db_pointer);
+    return Data_Wrap_Struct(klass, 0, db_free, db_pointer);
   }
 
   VALUE rocksdb_db_put(VALUE self, VALUE v_key, VALUE v_value) {
@@ -124,8 +124,17 @@ extern "C" {
     rocksdb_pointer* db_pointer;
     Data_Get_Struct(self, rocksdb_pointer, db_pointer);
 
-    delete db_pointer->db;
+    db_free(db_pointer);
     return Qnil;
+  }
+
+  void db_free(rocksdb_pointer* db_pointer){
+    std::cout << "free\n";
+    if(db_pointer->db != NULL){
+      delete db_pointer->db;
+      db_pointer->db = NULL;
+    }
+    delete db_pointer;
   }
 
   VALUE rocksdb_db_new_iterator(VALUE self){
@@ -146,6 +155,10 @@ extern "C" {
 
 
   VALUE rocksdb_db_each(VALUE self){
+    if(!rb_block_given_p()){
+      return rocksdb_db_new_iterator(self);
+    }
+    
     rocksdb_pointer* db_pointer;
     Data_Get_Struct(self, rocksdb_pointer, db_pointer);
     rocksdb::Iterator* it = db_pointer->db->NewIterator(rocksdb::ReadOptions());
@@ -153,8 +166,8 @@ extern "C" {
     for (it->SeekToFirst(); it->Valid(); it->Next()) {
       rb_yield(rb_enc_str_new(it->value().data(), it->value().size(), rb_utf8_encoding()));
     }
-    delete it;
     
+    delete it;
     return self;
   }
 
@@ -163,20 +176,12 @@ extern "C" {
     Data_Get_Struct(self, rocksdb_pointer, db_pointer);
     rocksdb::Iterator* it = db_pointer->db->NewIterator(rocksdb::ReadOptions());
 
-    long i;
-    volatile VALUE ary = rb_ary_new();
-
-    i = 0;
     for (it->SeekToLast(); it->Valid(); it->Prev()) {
-      VALUE v = rb_enc_str_new(it->value().data(), it->value().size(), rb_utf8_encoding());
-      rb_ary_store(ary, i, v);
-      rb_yield(RARRAY_PTR(ary)[i]);
-      i++;
+      rb_yield(rb_enc_str_new(it->value().data(), it->value().size(), rb_utf8_encoding()));
     }
+    
     delete it;
-
-    return ary;
-
+    return self;
   }
 
   VALUE rocksdb_db_debug(VALUE self){

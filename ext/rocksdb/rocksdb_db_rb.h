@@ -17,5 +17,5 @@ extern "C" {
   VALUE rocksdb_db_each(VALUE self);
   VALUE rocksdb_db_each_index(VALUE self);
   VALUE rocksdb_db_reverse_each(VALUE self);
-
+  void db_free(rocksdb_pointer* db_pointer);
 }
