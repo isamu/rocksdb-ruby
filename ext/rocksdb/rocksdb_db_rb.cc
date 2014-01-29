@@ -8,17 +8,33 @@ extern "C" {
 
   VALUE rocksdb_db_init(int argc, VALUE* argv, VALUE self) {
     VALUE v_db_file_name;
+    VALUE v_options;
     rocksdb_pointer* db_pointer;
     rocksdb::DB* db;
-
-    Data_Get_Struct(self, rocksdb_pointer, db_pointer);
-    rb_scan_args(argc, argv, "01", &v_db_file_name);
-    Check_Type(v_db_file_name, T_STRING);
-    std::string db_file_name = std::string((char*)RSTRING_PTR(v_db_file_name));
-
     rocksdb::Options options;
+    rocksdb::Status status;
+    std::string db_file_name;
+    bool readonly;
+    
+    Data_Get_Struct(self, rocksdb_pointer, db_pointer);
+    rb_scan_args(argc, argv, "11", &v_db_file_name, &v_options);
+
+    Check_Type(v_db_file_name, T_STRING);
+    db_file_name = std::string((char*)RSTRING_PTR(v_db_file_name));
+
+    readonly = false;
+    if (TYPE(v_options) == T_HASH) {
+      VALUE v = rb_hash_aref(v_options, ID2SYM(rb_intern("readonly")));
+      if(v == Qtrue){
+	readonly = true;
+      }
+    }
     options.create_if_missing = true;
-    rocksdb::Status status = rocksdb::DB::Open(options, db_file_name, &db);
+    if(readonly){
+      status = rocksdb::DB::OpenForReadOnly(options, db_file_name, &db);
+    }else{
+      status = rocksdb::DB::Open(options, db_file_name, &db);
+    }
 
     db_pointer->db = db;
 
@@ -124,12 +140,14 @@ extern "C" {
     rocksdb_pointer* db_pointer;
     Data_Get_Struct(self, rocksdb_pointer, db_pointer);
 
-    db_free(db_pointer);
+    if(db_pointer->db != NULL){
+      delete db_pointer->db;
+      db_pointer->db = NULL;
+    }
     return Qnil;
   }
 
   void db_free(rocksdb_pointer* db_pointer){
-    std::cout << "free\n";
     if(db_pointer->db != NULL){
       delete db_pointer->db;
       db_pointer->db = NULL;

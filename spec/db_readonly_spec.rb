@@ -9,7 +9,7 @@ describe RocksDB do
 
   it 'should get data' do
     @rocksdb.put("test:multi_db", "10")
-    expect(@rocksdb.get("test:multi_db")).to eq "1"
+    expect(@rocksdb.get("test:multi_db")).to eq "2"
   end
 
   after do

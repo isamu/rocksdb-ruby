@@ -57,6 +57,7 @@ describe RocksDB do
     
     expect(@rocksdb.get("test:multi_db")).to eq "1"
     expect(@rocksdb2.get("test:multi_db")).to eq "2"
+    @rocksdb2.close
   end
 
   it 'should use japanese charactor' do
