@@ -18,4 +18,7 @@ extern "C" {
   VALUE rocksdb_db_each_index(VALUE self);
   VALUE rocksdb_db_reverse_each(VALUE self);
   void db_free(rocksdb_pointer* db_pointer);
+  void set_opt(rocksdb::Options* opt, VALUE *v_options);
+  void set_opt_unit_val(uint64_t* opt, char* name, VALUE *v_options);
+  void set_opt_int_val(int* opt, char* name, VALUE *v_options);
 }

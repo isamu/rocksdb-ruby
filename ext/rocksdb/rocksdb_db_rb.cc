@@ -29,6 +29,12 @@ extern "C" {
 	readonly = true;
       }
     }
+    set_opt(&options, &v_options);
+
+    //std::cout << options.max_bytes_for_level_base << "\n";
+    //std::cout << options.max_grandparent_overlap_factor << "\n";
+    //std::cout << options.delete_obsolete_files_period_micros << "\n";
+
     options.create_if_missing = true;
     if(readonly){
       status = rocksdb::DB::OpenForReadOnly(options, db_file_name, &db);
@@ -39,6 +45,25 @@ extern "C" {
     db_pointer->db = db;
 
     return status.ok() ? Qtrue : Qfalse;
+  }
+
+  void set_opt_unit_val(uint64_t* opt, char* name, VALUE *v_options){
+    VALUE v2 = rb_hash_aref(*v_options, ID2SYM(rb_intern(name)));
+    if(RB_TYPE_P(v2, T_FIXNUM)){
+      *opt = NUM2INT(v2);
+    }
+  }
+  void set_opt_int_val(int* opt, char* name, VALUE *v_options){
+    VALUE v2 = rb_hash_aref(*v_options, ID2SYM(rb_intern(name)));
+    if(RB_TYPE_P(v2, T_FIXNUM)){
+      *opt = NUM2INT(v2);
+    }
+  }
+
+  void set_opt(rocksdb::Options* options, VALUE *v_options){
+    set_opt_unit_val(&options->max_bytes_for_level_base, (char *) "max_bytes_for_level_base", v_options);
+    set_opt_int_val(&options->max_grandparent_overlap_factor, (char *) "max_grandparent_overlap_factor", v_options);
+    set_opt_unit_val(&options->delete_obsolete_files_period_micros, (char *) "delete_obsolete_files_period_micros", v_options);
   }
 
   VALUE db_alloc(VALUE klass){
