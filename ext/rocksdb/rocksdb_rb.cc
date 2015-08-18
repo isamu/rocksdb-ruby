@@ -32,6 +32,8 @@ extern "C" {
     rb_define_method(cRocksdb_db, "new_iterator", (METHOD)rocksdb_db_new_iterator, 0);
 
     rb_define_method(cRocksdb_db, "each", (METHOD)rocksdb_db_each, 0);
+    rb_define_method(cRocksdb_db, "each_index", (METHOD)rocksdb_db_each_index, 0);
+    rb_define_method(cRocksdb_db, "each_with_index", (METHOD)rocksdb_db_each_with_index, 0);
     rb_define_method(cRocksdb_db, "reverse_each", (METHOD)rocksdb_db_reverse_each, 0);
 
     cRocksdb_write_batch = rb_define_class_under(cRocksdb, "Batch", rb_cObject);

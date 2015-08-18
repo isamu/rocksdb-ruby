@@ -28,9 +28,8 @@ extern "C" {
       if(v == Qtrue){
 	readonly = true;
       }
+      set_opt(&options, &v_options);
     }
-    set_opt(&options, &v_options);
-
     //std::cout << options.max_bytes_for_level_base << "\n";
     //std::cout << options.max_grandparent_overlap_factor << "\n";
     //std::cout << options.delete_obsolete_files_period_micros << "\n";
@@ -48,6 +47,7 @@ extern "C" {
   }
 
   void set_opt_unit_val(uint64_t* opt, char* name, VALUE *v_options){
+
     VALUE v2 = rb_hash_aref(*v_options, ID2SYM(rb_intern(name)));
     if(RB_TYPE_P(v2, T_FIXNUM)){
       *opt = NUM2INT(v2);
@@ -213,6 +213,44 @@ extern "C" {
     delete it;
     return self;
   }
+
+  VALUE rocksdb_db_each_index(VALUE self){
+    if(!rb_block_given_p()){
+      return rocksdb_db_new_iterator(self);
+    }
+    
+    rocksdb_pointer* db_pointer;
+    Data_Get_Struct(self, rocksdb_pointer, db_pointer);
+    rocksdb::Iterator* it = db_pointer->db->NewIterator(rocksdb::ReadOptions());
+
+    for (it->SeekToFirst(); it->Valid(); it->Next()) {
+      rb_yield(rb_enc_str_new(it->key().data(), it->key().size(), rb_utf8_encoding()));
+    }
+    
+    delete it;
+    return self;
+  }
+
+  VALUE rocksdb_db_each_with_index(VALUE self){
+    if(!rb_block_given_p()){
+      return rocksdb_db_new_iterator(self);
+    }
+    
+    rocksdb_pointer* db_pointer;
+    Data_Get_Struct(self, rocksdb_pointer, db_pointer);
+    rocksdb::Iterator* it = db_pointer->db->NewIterator(rocksdb::ReadOptions());
+
+    for (it->SeekToFirst(); it->Valid(); it->Next()) {
+      VALUE a = rb_enc_str_new(it->key().data(), it->key().size(), rb_utf8_encoding());
+      VALUE b = rb_enc_str_new(it->value().data(), it->value().size(), rb_utf8_encoding());
+      rb_yield_values(2, a, b);
+    }
+    
+    delete it;
+    return self;
+  }
+
+  
 
   VALUE rocksdb_db_reverse_each(VALUE self){
     rocksdb_pointer* db_pointer;

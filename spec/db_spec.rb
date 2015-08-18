@@ -81,8 +81,19 @@ describe RocksDB do
       expect(value).not_to be_empty
       rev_array << value
     end
+ 
 
     expect(array).to eq rev_array.reverse
+
+    @rocksdb.each_index do |key|
+      expect(key).not_to be_empty
+    end
+
+    @rocksdb.each_with_index do |key, value|
+      expect(key).not_to be_empty
+      expect(value).not_to be_empty
+    end
+
     iter.close
   end
 

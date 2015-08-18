@@ -16,6 +16,7 @@ extern "C" {
   VALUE rocksdb_db_new_iterator(VALUE self);
   VALUE rocksdb_db_each(VALUE self);
   VALUE rocksdb_db_each_index(VALUE self);
+  VALUE rocksdb_db_each_with_index(VALUE self);
   VALUE rocksdb_db_reverse_each(VALUE self);
   void db_free(rocksdb_pointer* db_pointer);
   void set_opt(rocksdb::Options* opt, VALUE *v_options);
