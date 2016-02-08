@@ -4,15 +4,19 @@ require "rocksdb"
 
 describe RocksDB do
   before do
-    @rocksdb = RocksDB::DB.new "/tmp/file2", {:readonly => true}
+    @rocksdb = RocksDB::DB.new "/tmp/file2"
+    @rocksdb.put("test:multi_db", "1")
+    @rocksdb.close
+
+    @rocksdb2 = RocksDB::DB.new "/tmp/file2", {:readonly => true}
   end
 
   it 'should get data' do
-    @rocksdb.put("test:multi_db", "10")
-    expect(@rocksdb.get("test:multi_db")).to eq "2"
+    @rocksdb2.put("test:multi_db", "10")
+    expect(@rocksdb2.get("test:multi_db")).to eq "1"
   end
 
   after do
-    @rocksdb.close
+    @rocksdb2.close
   end
 end
