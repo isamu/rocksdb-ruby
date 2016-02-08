@@ -119,20 +119,19 @@ extern "C" {
     Data_Get_Struct(self, rocksdb_pointer, db_pointer);
 
     long i;
-    VALUE *tmp = RARRAY_PTR(v_array);
     long length = RARRAY_LEN(v_array);
     std::vector<std::string> values(length);
     std::vector<rocksdb::Slice> keys(length);
     std::vector<rocksdb::Status> status;
 
     for(i=0; i < length; i++){
-      keys[i] = rocksdb::Slice((char*)RSTRING_PTR(*tmp));
-      tmp++;
+      VALUE op = rb_ary_entry(v_array, i);
+      keys[i] = rocksdb::Slice((char*)RSTRING_PTR(op));
     }
 
     status = db_pointer->db->MultiGet(rocksdb::ReadOptions(),keys,&values);
     for(i=0; i < length; i++){
-      RARRAY_PTR(v_array)[i] = rb_enc_str_new(values[i].data(), values[i].size(), rb_utf8_encoding());
+      rb_ary_store(v_array, i, rb_enc_str_new(values[i].data(), values[i].size(), rb_utf8_encoding()));
     }
     return v_array;
   }
