@@ -1,4 +1,4 @@
-require "RocksDB/RocksDB" # the c extension
+require "rocksdb/RocksDB" # the c extension
 require "rocksdb/ruby/version"
 
 module RocksDB
