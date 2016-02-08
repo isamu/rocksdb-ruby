@@ -78,9 +78,10 @@ extern "C" {
     rocksdb_pointer* db_pointer;
     Data_Get_Struct(self, rocksdb_pointer, db_pointer);
     
-    std::string key = std::string((char*)RSTRING_PTR(v_key));
-    std::string value = std::string((char*)RSTRING_PTR(v_value));
+    std::string key = std::string((char*)RSTRING_PTR(v_key), RSTRING_LEN(v_key));
+    std::string value = std::string((char*)RSTRING_PTR(v_value), RSTRING_LEN(v_value));
 
+    // std::cout << key << "\n";
     rocksdb::Status status = db_pointer->db->Put(rocksdb::WriteOptions(), key, value);
     
     return status.ok() ? Qtrue : Qfalse;
@@ -103,7 +104,7 @@ extern "C" {
     rocksdb_pointer* db_pointer;
     Data_Get_Struct(self, rocksdb_pointer, db_pointer);
     
-    std::string key = std::string((char*)RSTRING_PTR(v_key));
+    std::string key = std::string((char*)RSTRING_PTR(v_key), RSTRING_LEN(v_key));
     std::string value;
     rocksdb::Status status = db_pointer->db->Get(rocksdb::ReadOptions(), key, &value);    
 
@@ -126,7 +127,7 @@ extern "C" {
 
     for(i=0; i < length; i++){
       VALUE op = rb_ary_entry(v_array, i);
-      keys[i] = rocksdb::Slice((char*)RSTRING_PTR(op));
+      keys[i] = rocksdb::Slice((char*)RSTRING_PTR(op), RSTRING_LEN(op));
     }
 
     status = db_pointer->db->MultiGet(rocksdb::ReadOptions(),keys,&values);
@@ -142,7 +143,7 @@ extern "C" {
     rocksdb_pointer* db_pointer;
     Data_Get_Struct(self, rocksdb_pointer, db_pointer);
 
-    std::string key = std::string((char*)RSTRING_PTR(v_key));
+    std::string key = std::string((char*)RSTRING_PTR(v_key), RSTRING_LEN(v_key));
     rocksdb::Status status = db_pointer->db->Delete(rocksdb::WriteOptions(), key);
     
     return status.ok() ? Qtrue : Qfalse;
@@ -154,7 +155,7 @@ extern "C" {
     rocksdb_pointer* db_pointer;
     Data_Get_Struct(self, rocksdb_pointer, db_pointer);
 
-    std::string key = std::string((char*)RSTRING_PTR(v_key));
+    std::string key = std::string((char*)RSTRING_PTR(v_key), RSTRING_LEN(v_key));
     std::string value = std::string();
     
     return db_pointer->db->KeyMayExist(rocksdb::ReadOptions(), key, &value) ? Qtrue : Qfalse;

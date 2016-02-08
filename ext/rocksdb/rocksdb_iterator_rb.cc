@@ -24,7 +24,7 @@ extern "C" {
 
   VALUE rocksdb_iterator_seek(VALUE klass, VALUE v_target){
     Check_Type(v_target, T_STRING);
-    rocksdb::Slice target = rocksdb::Slice((char*)RSTRING_PTR(v_target));
+    rocksdb::Slice target = rocksdb::Slice((char*)RSTRING_PTR(v_target), RSTRING_LEN(v_target));
 
     rocksdb_iterator_pointer* rocksdb_it;
     Data_Get_Struct(klass, rocksdb_iterator_pointer , rocksdb_it);

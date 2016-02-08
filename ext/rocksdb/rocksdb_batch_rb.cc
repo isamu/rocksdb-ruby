@@ -17,8 +17,8 @@ extern "C" {
     Check_Type(v_value, T_STRING);
 
     rocksdb::WriteBatch *batch;
-    std::string key = std::string((char*)RSTRING_PTR(v_key));
-    std::string value = std::string((char*)RSTRING_PTR(v_value));
+    std::string key = std::string((char*)RSTRING_PTR(v_key), RSTRING_LEN(v_key));
+    std::string value = std::string((char*)RSTRING_PTR(v_value), RSTRING_LEN(v_value));
     
     Data_Get_Struct(self, rocksdb::WriteBatch, batch);
     batch->Put(key, value);
@@ -28,7 +28,7 @@ extern "C" {
     Check_Type(v_key, T_STRING);
 
     rocksdb::WriteBatch *batch;
-    std::string key = std::string((char*)RSTRING_PTR(v_key));
+    std::string key = std::string((char*)RSTRING_PTR(v_key), RSTRING_LEN(v_key));
     
     Data_Get_Struct(self, rocksdb::WriteBatch, batch);
     batch->Delete(key);
