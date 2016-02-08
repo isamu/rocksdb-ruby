@@ -13,7 +13,7 @@ describe RocksDB do
   end
 
   it 'should put data' do 
-    expect(@rocksdb.put("test:put", "2")).to be_true
+    expect(@rocksdb.put("test:put", "2")).to be true
     expect(@rocksdb.get("test:put")).to eq "2"
   end
 
@@ -21,7 +21,7 @@ describe RocksDB do
     @rocksdb.put("test:delete", "3")
     expect(@rocksdb.get("test:delete")).to eq "3"
 
-    expect(@rocksdb.delete("test:delete")).to be_true
+    expect(@rocksdb.delete("test:delete")).to be true
     expect(@rocksdb.get("test:delete")).to be_nil
   end
 
@@ -100,11 +100,11 @@ describe RocksDB do
   it 'should exists?' do
     @rocksdb.put("test:exists?", "a")
     @rocksdb.delete("test:noexists?")
-    expect(@rocksdb.exists?("test:exists?")).to be_true
-    expect(@rocksdb.exists?("test:noexists?")).to be_false
+    expect(@rocksdb.exists?("test:exists?")).to be true
+    expect(@rocksdb.exists?("test:noexists?")).to be false
 
-    expect(@rocksdb.includes?("test:exists?")).to be_true
-    expect(@rocksdb.includes?("test:noexists?")).to be_false
+    expect(@rocksdb.includes?("test:exists?")).to be true
+    expect(@rocksdb.includes?("test:noexists?")).to be false
 
   end
 

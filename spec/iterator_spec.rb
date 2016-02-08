@@ -12,7 +12,7 @@ describe RocksDB do
 
     iterator.seek_to_first
     
-    expect(iterator.valid).to be_true
+    expect(iterator.valid).to be true
     while(iterator.valid)
       expect(iterator.value).not_to be_empty
       expect(iterator.key).not_to be_empty
