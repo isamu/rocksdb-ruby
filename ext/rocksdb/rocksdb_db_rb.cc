@@ -62,7 +62,6 @@ extern "C" {
 
   void set_opt(rocksdb::Options* options, VALUE *v_options){
     set_opt_unit_val(&options->max_bytes_for_level_base, (char *) "max_bytes_for_level_base", v_options);
-    set_opt_int_val(&options->max_grandparent_overlap_factor, (char *) "max_grandparent_overlap_factor", v_options);
     set_opt_unit_val(&options->delete_obsolete_files_period_micros, (char *) "delete_obsolete_files_period_micros", v_options);
   }
 
