@@ -5,7 +5,7 @@ require "rspec/core/rake_task"
 RSpec::Core::RakeTask.new('spec')
 task :build do
   Dir.chdir('ext/rocksdb/') do
-    output = `ruby extconf.rb`
+    output = `ruby extconf.rb #{ENV['ROCKSDB_RUBY_BUILD_PARAMS']}`
     raise output unless $? == 0
     output = `make`
     raise output unless $? == 0
