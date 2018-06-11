@@ -1,4 +1,5 @@
-[![Build Status](https://travis-ci.org/Boostcom/rocksdb-ruby.svg?branch=next)](https://travis-ci.org/Boostcom/rocksdb-ruby)
+[![Build Status](https://travis-ci.org/isamu/rocksdb-ruby.svg)](https://travis-ci.org/isamu/rocksdb-ruby)
+[![Gem Version](https://badge.fury.io/rb/rocksdb-ruby.svg)](https://badge.fury.io/rb/rocksdb-ruby)
 
 # RocksDB
 
