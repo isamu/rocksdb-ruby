@@ -115,6 +115,24 @@ describe RocksDB do
     expect(@rocksdb["test:hash"]).to eq "a"
 
   end
+
+  context 'compact' do
+    it 'works with no parameters' do
+      expect(@rocksdb.compact).to eq(true)
+    end
+
+    it 'works with one parameter' do
+      expect(@rocksdb.compact('a')).to eq(true)
+    end
+
+    it 'works with two parameters' do
+      expect(@rocksdb.compact('a', 'x')).to eq(true)
+    end
+
+    it 'works with nil as first parameter' do
+      expect(@rocksdb.compact(nil, 'x')).to eq(true)
+    end
+  end
   
   after do
     @rocksdb.close

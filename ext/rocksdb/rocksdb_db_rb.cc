@@ -267,4 +267,26 @@ extern "C" {
   VALUE rocksdb_db_debug(VALUE self){
     return Qnil;
   }
+
+  VALUE rocksdb_db_compact(int argc, VALUE* argv, VALUE self) {
+    VALUE v_from, v_to;
+    rocksdb::Slice from, to;
+
+    rb_scan_args(argc, argv, "02", &v_from, &v_to);
+
+    if(!NIL_P(v_from)) {
+      Check_Type(v_from, T_STRING);
+      from = rocksdb::Slice((char*)RSTRING_PTR(v_from), RSTRING_LEN(v_from));
+    }
+
+    if(!NIL_P(v_to)) {
+      Check_Type(v_to, T_STRING);
+      to = rocksdb::Slice((char*)RSTRING_PTR(v_to), RSTRING_LEN(v_to));
+    }
+
+    rocksdb_pointer* db_pointer;
+    Data_Get_Struct(self, rocksdb_pointer, db_pointer);
+    rocksdb::Status status = db_pointer->db->CompactRange(rocksdb::CompactRangeOptions(), &from, &to);
+    return status.ok() ? Qtrue : Qfalse;
+  }
 }
