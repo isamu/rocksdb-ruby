@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/Boostcom/rocksdb-ruby.svg?branch=next)](https://travis-ci.org/Boostcom/rocksdb-ruby)
+
 # RocksDB
 
 The rocksdb is a persistent in-process key-value store.

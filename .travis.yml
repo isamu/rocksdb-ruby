@@ -1,0 +1,22 @@
+language: ruby
+rvm:
+  - 2.4.0
+script: bundle exec rake spec || ( cat ext/rocksdb/mkmf.log && /bin/false )
+
+before_install:
+  - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+  - sudo apt-get update -qq
+  - sudo apt-get install gcc-6 g++-6 libsnappy-dev zlib1g-dev libbz2-dev -qq
+  - export CXX="g++-6" CC="gcc-6"
+  - sudo ln -s /usr/bin/gcc-6 /usr/local/bin/gcc
+  - sudo ln -s /usr/bin/g++-6 /usr/local/bin/g++
+  - gem install bundler
+
+install:
+  - git clone https://github.com/facebook/rocksdb.git /tmp/rocksdb
+  - pushd /tmp/rocksdb
+  - make clean
+  - make shared_lib
+  - popd
+  - export ROCKSDB_RUBY_BUILD_PARAMS="--with-rocksdb-dir=/tmp/rocksdb --with-rocksdb-lib=/tmp/rocksdb"
+  - bundle install
