@@ -4,6 +4,7 @@
 extern "C" {
 #include <ruby.h>
   VALUE rocksdb_db_init(int argc, VALUE* argv, VALUE self);
+  VALUE rocksdb_db_init2(int argc, VALUE* argv, VALUE self);
   VALUE db_alloc(VALUE klass);
   VALUE rocksdb_db_put(VALUE self, VALUE v_key, VALUE v_value);
   VALUE rocksdb_db_write(VALUE self, VALUE v_write);

@@ -116,6 +116,25 @@ describe RocksDB do
 
   end
 
+  it 'race condition test' do
+    key = "test"
+    value = "1"
+    begin
+      expect(RocksDB::DB.new "/tmp/file").to raise_error("error")
+    rescue
+    end
+    
+    @rocksdb2 = RocksDB::DB.new "/tmp/file", {:readonly => true}
+    expect(@rocksdb2.get("test:batch2")).to eq "b"
+
+    @rocksdb.close
+    @rocksdb = RocksDB::DB.new "/tmp/file"
+    
+    @rocksdb3 = RocksDB::DB.new "/tmp/file", {:readonly => true}
+    expect(@rocksdb3.get("test:batch2")).to eq "b"
+    
+  end
+  
   context 'compact' do
     it 'works with no parameters' do
       expect(@rocksdb.compact).to eq(true)
@@ -133,7 +152,7 @@ describe RocksDB do
       expect(@rocksdb.compact(nil, 'x')).to eq(true)
     end
   end
-  
+
   after do
     @rocksdb.close
   end

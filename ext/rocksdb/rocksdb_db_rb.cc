@@ -45,6 +45,15 @@ extern "C" {
 
     return status.ok() ? Qtrue : Qfalse;
   }
+  VALUE rocksdb_db_init2(int argc, VALUE* argv, VALUE self) {
+    rocksdb_pointer* db_pointer;
+    Data_Get_Struct(self, rocksdb_pointer, db_pointer);
+    db_pointer->db = NULL;
+
+    Data_Get_Struct(self, rocksdb_pointer, db_pointer);
+
+    return Qtrue;
+  }
 
   void set_opt_unit_val(uint64_t* opt, char* name, VALUE *v_options){
 
