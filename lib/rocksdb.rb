@@ -2,27 +2,39 @@ require "rocksdb/RocksDB" # the c extension
 require "rocksdb/ruby/version"
 
 module RocksDB
+  class DBError < StandardError; end
   class DB
     include Enumerable
 
     @@cache = {}
     
     class << self
+      def get_instance *args
+        readonly = !!(args[1] && args[1][:readonly])
+        key = args[0]
+        
+        if readonly
+          return new(*args)
+        end
+        unless @@cache[key]
+          @@cache[key] = new(*args)
+        end
+        @@cache[key]
+      end
     end
     
     def initialize *args
-      options = args[1]
+      readonly = !!(args[1] && args[1][:readonly])
       @key = args[0]
-      if options && options[:readonly]
-        __initialize(*args)
-      else
-        if @@cache[args[0]]
-          __initialize2(*args)
-          raise "error"
-        else
-          __initialize(*args)
-          @@cache[args[0]] = self
-        end
+      
+      if !readonly and @@cache[@key]
+        __initialize2(*args)
+        raise DBError.new("error #{@key.to_s} alread open")
+      end
+
+      __initialize(*args)
+      unless readonly
+        @@cache[@key] = self
       end
     end
 

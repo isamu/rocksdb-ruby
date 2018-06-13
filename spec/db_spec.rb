@@ -119,20 +119,31 @@ describe RocksDB do
   it 'race condition test' do
     key = "test"
     value = "1"
-    begin
-      expect(RocksDB::DB.new "/tmp/file").to raise_error("error")
-    rescue
-    end
-    
+
+    expect{RocksDB::DB.new "/tmp/file"}.to raise_error(RocksDB::DBError)
+
+    expect(@rocksdb.put("test:put", "1")).to be true
+
     @rocksdb2 = RocksDB::DB.new "/tmp/file", {:readonly => true}
-    expect(@rocksdb2.get("test:batch2")).to eq "b"
+    expect(@rocksdb2.get("test:put")).to eq "1"
 
     @rocksdb.close
     @rocksdb = RocksDB::DB.new "/tmp/file"
+    expect(@rocksdb.put("test:put", "2")).to be true
     
     @rocksdb3 = RocksDB::DB.new "/tmp/file", {:readonly => true}
-    expect(@rocksdb3.get("test:batch2")).to eq "b"
+    expect(@rocksdb3.get("test:put")).to eq "2"
     
+  end
+  
+  it 'singleton' do
+    @rocksdb2 = RocksDB::DB.get_instance("/tmp/file")
+    @rocksdb3 = RocksDB::DB.get_instance("/tmp/file")
+    expect(@rocksdb).to eq (@rocksdb3)
+    expect(@rocksdb2).to eq (@rocksdb3)
+    
+    @rocksdb4 = RocksDB::DB.get_instance("/tmp/file", {:readonly => true})
+    expect(@rocksdb2).not_to eq (@rocksdb4)
   end
   
   context 'compact' do
