@@ -14,6 +14,7 @@ extern "C" {
   
   struct rocksdb_pointer{ 
     rocksdb::DB* db;
+    bool readonly;
   };
 
   struct rocksdb_iterator_pointer{ 

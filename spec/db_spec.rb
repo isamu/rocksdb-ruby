@@ -144,6 +144,10 @@ describe RocksDB do
     
     @rocksdb4 = RocksDB::DB.get_instance("/tmp/file", {:readonly => true})
     expect(@rocksdb2).not_to eq (@rocksdb4)
+
+    @rocksdb2.close
+    expect{@rocksdb2.get("test:put")}.to raise_error(RuntimeError)
+    expect{@rocksdb3.get("test:put")}.to raise_error(RuntimeError)
   end
   
   context 'compact' do

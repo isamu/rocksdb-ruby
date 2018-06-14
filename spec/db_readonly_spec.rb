@@ -12,8 +12,14 @@ describe RocksDB do
   end
 
   it 'should get data' do
-    expect(@rocksdb2.put("test:multi_db", "10")).to eq false
+    expect{@rocksdb2.put("test:multi_db", "10")}.to raise_error(RuntimeError)
+    expect{@rocksdb2.delete("test:multi_db")}.to raise_error(RuntimeError)
     expect(@rocksdb2.get("test:multi_db")).to eq "1"
+
+    batch = RocksDB::Batch.new
+    batch.delete("test:batch1")
+    batch.put("test:batch2", "b")
+    expect{@rocksdb2.write(batch)}.to raise_error(RuntimeError)
   end
 
   after do
