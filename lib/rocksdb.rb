@@ -26,12 +26,10 @@ module RocksDB
     def initialize *args
       readonly = !!(args[1] && args[1][:readonly])
       @key = args[0]
-      
       if !readonly and @@cache[@key]
         __initialize2(*args)
         raise DBError.new("error #{@key.to_s} alread open")
       end
-
       __initialize(*args)
       unless readonly
         @@cache[@key] = self

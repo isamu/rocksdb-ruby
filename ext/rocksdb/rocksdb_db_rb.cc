@@ -50,7 +50,7 @@ extern "C" {
     rocksdb_pointer* db_pointer;
     Data_Get_Struct(self, rocksdb_pointer, db_pointer);
     db_pointer->db = NULL;
-
+    db_pointer->readonly = true;
     Data_Get_Struct(self, rocksdb_pointer, db_pointer);
 
     return Qtrue;
@@ -317,7 +317,23 @@ extern "C" {
   VALUE rocksdb_db_debug(VALUE self){
     return Qnil;
   }
-
+  VALUE rocksdb_db_is_readonly(VALUE self){
+    rocksdb_pointer* db_pointer;
+    Data_Get_Struct(self, rocksdb_pointer, db_pointer);
+    if (db_pointer->readonly) {
+      return Qtrue;
+    }
+    if (!db_pointer->readonly) {
+      return Qfalse;
+    }
+    return Qnil;
+  }
+  VALUE rocksdb_db_is_open(VALUE self){
+    rocksdb_pointer* db_pointer;
+    Data_Get_Struct(self, rocksdb_pointer, db_pointer);
+    return (db_pointer->db == NULL) ? Qfalse : Qtrue;
+  }
+  
   VALUE rocksdb_db_compact(int argc, VALUE* argv, VALUE self) {
     VALUE v_from, v_to;
     rocksdb::Slice from, to;

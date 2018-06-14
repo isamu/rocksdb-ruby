@@ -4,11 +4,12 @@ require "rocksdb"
 
 describe RocksDB do
   before do
-    @rocksdb = RocksDB::DB.new "/tmp/file"
+    @rocksdb = RocksDB::DB.new("/tmp/file")
   end
 
   it 'should get data' do
     @rocksdb.put("test:read", "1")
+    expect(@rocksdb.is_readonly?).to eq false
     expect(@rocksdb.get("test:read")).to eq "1"
   end
 
@@ -50,8 +51,7 @@ describe RocksDB do
   end
 
   it 'should use multiple db' do
-    @rocksdb2 = RocksDB::DB.new "/tmp/file2"
-    
+    @rocksdb2 = RocksDB::DB.new("/tmp/file2")
     @rocksdb.put("test:multi_db", "1")
     @rocksdb2.put("test:multi_db", "2")
     
@@ -120,34 +120,55 @@ describe RocksDB do
     key = "test"
     value = "1"
 
-    expect{RocksDB::DB.new "/tmp/file"}.to raise_error(RocksDB::DBError)
+    expect{RocksDB::DB.new("/tmp/file")}.to raise_error(RocksDB::DBError)
 
     expect(@rocksdb.put("test:put", "1")).to be true
 
-    @rocksdb2 = RocksDB::DB.new "/tmp/file", {:readonly => true}
+    @rocksdb2 = RocksDB::DB.new("/tmp/file", {:readonly => true})
+    expect(@rocksdb2.is_readonly?).to eq true
     expect(@rocksdb2.get("test:put")).to eq "1"
 
     @rocksdb.close
-    @rocksdb = RocksDB::DB.new "/tmp/file"
+
+    expect(@rocksdb.is_open?).to eq false
+
+    @rocksdb = RocksDB::DB.new("/tmp/file")
+    expect(@rocksdb.is_readonly?).to eq false
+    expect(@rocksdb.is_open?).to eq true
     expect(@rocksdb.put("test:put", "2")).to be true
     
-    @rocksdb3 = RocksDB::DB.new "/tmp/file", {:readonly => true}
+    @rocksdb3 = RocksDB::DB.new("/tmp/file", {:readonly => true})
+    expect(@rocksdb3.is_readonly?).to eq true
+    expect(@rocksdb3.is_open?).to eq true
     expect(@rocksdb3.get("test:put")).to eq "2"
+
+    @rocksdb2.close
+    @rocksdb3.close
     
   end
   
   it 'singleton' do
     @rocksdb2 = RocksDB::DB.get_instance("/tmp/file")
+    expect(@rocksdb2.is_readonly?).to eq false
+    expect(@rocksdb2.is_open?).to eq true
+
     @rocksdb3 = RocksDB::DB.get_instance("/tmp/file")
+    expect(@rocksdb3.is_readonly?).to eq false
     expect(@rocksdb).to eq (@rocksdb3)
     expect(@rocksdb2).to eq (@rocksdb3)
     
     @rocksdb4 = RocksDB::DB.get_instance("/tmp/file", {:readonly => true})
     expect(@rocksdb2).not_to eq (@rocksdb4)
-
+    expect(@rocksdb4.is_readonly?).to eq true
+    expect(@rocksdb4.is_open?).to eq true
+    
     @rocksdb2.close
     expect{@rocksdb2.get("test:put")}.to raise_error(RuntimeError)
+    expect(@rocksdb2.is_open?).to eq false
     expect{@rocksdb3.get("test:put")}.to raise_error(RuntimeError)
+    expect(@rocksdb3.is_open?).to eq false
+
+    @rocksdb4.close
   end
   
   context 'compact' do

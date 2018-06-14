@@ -14,6 +14,8 @@ extern "C" {
   VALUE rocksdb_db_exists(VALUE self, VALUE v_key);
   VALUE rocksdb_db_close(VALUE self);
   VALUE rocksdb_db_debug(VALUE self);
+  VALUE rocksdb_db_is_readonly(VALUE self);
+  VALUE rocksdb_db_is_open(VALUE self);
   VALUE rocksdb_db_new_iterator(VALUE self);
   VALUE rocksdb_db_each(VALUE self);
   VALUE rocksdb_db_each_index(VALUE self);
