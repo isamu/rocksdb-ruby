@@ -15,57 +15,64 @@ First install rocksdb.
 
 Add this line to your application's Gemfile:
 
-    gem 'rocksdb-ruby'
+```ruby
+gem 'rocksdb-ruby'
+```
 
 And then execute:
 
-    $ bundle
+```sh
+$ bundle
+```
 
 Or install it yourself as:
 
-    $ gem install rocksdb-ruby
+```sh
+$ gem install rocksdb-ruby
+```
 
 ## Usage
 
-    require "rocksdb"
+```ruby
+require "rocksdb"
 
-    # Reads And Writes
-    key = "test"
-    value = "1"
-    rocksdb = RocksDB::DB.new "/tmp/file"
-    rocksdb.put(key, value)
-    new_value = rocksdb.get(key)
-    rocksdb.delete(key)
+# Reads And Writes
+key = "test"
+value = "1"
+rocksdb = RocksDB::DB.new "/tmp/file"
+rocksdb.put(key, value)
+new_value = rocksdb.get(key)
+rocksdb.delete(key)
 
-    #Atomic Updates
-    batch = RocksDB::Batch.new
-    batch.delete("test:batch1")
-    batch.put("test:batch2", "b")
-    rocksdb.write(batch)
+# Atomic Updates
+batch = RocksDB::Batch.new
+batch.delete("test:batch1")
+batch.put("test:batch2", "b")
+rocksdb.write(batch)
 
-    #Iteration
-    iterator = rocksdb.new_iterator
+# Iteration
+iterator = rocksdb.new_iterator
 
-    iterator.seek_to_first
-    while(iterator.valid)
-      iterator.value
-      iterator.key
-      iterator.next
-    end
-    iterator.close
+iterator.seek_to_first
+while(iterator.valid)
+  iterator.value
+  iterator.key
+  iterator.next
+end
+iterator.close
 
-    #Block
-    rocksdb.each do |data|
-      puts data
-    end
+# Block
+rocksdb.each do |data|
+  puts data
+end
 
-    #Hash access
-    rocksdb['key'] = data
-    puts rocksdb['key']
+# Hash access
+rocksdb['key'] = data
+puts rocksdb['key']
 
-    
-    rocksdb.close
 
+rocksdb.close
+```
 
 ## Contributing
 
