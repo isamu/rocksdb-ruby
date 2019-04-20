@@ -73,6 +73,7 @@ extern "C" {
   void set_opt(rocksdb::Options* options, VALUE *v_options){
     set_opt_unit_val(&options->max_bytes_for_level_base, (char *) "max_bytes_for_level_base", v_options);
     set_opt_unit_val(&options->delete_obsolete_files_period_micros, (char *) "delete_obsolete_files_period_micros", v_options);
+    set_opt_int_val(&options->max_open_files, (char *) "max_open_files", v_options);
   }
 
   VALUE db_alloc(VALUE klass){
