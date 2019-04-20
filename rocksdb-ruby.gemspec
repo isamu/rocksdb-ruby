@@ -12,7 +12,7 @@ Gem::Specification.new do |spec|
   spec.email         = ["isamu.a@gmail.com"]
   spec.summary       = %q{A simple RocksDB library for Ruby}
   spec.homepage      = "https://github.com/isamu/rocksdb-ruby"
-  spec.license       = "mit"
+  spec.license       = "MIT"
 
   spec.files         = `git ls-files`.split($/)
   spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
