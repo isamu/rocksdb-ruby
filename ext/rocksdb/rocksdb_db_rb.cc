@@ -119,6 +119,23 @@ extern "C" {
     return status.ok() ? Qtrue : Qfalse;
   }
 
+  VALUE rocksdb_db_property(VALUE self, VALUE v_key){
+    Check_Type(v_key, T_STRING);
+
+    rocksdb_pointer* db_pointer;
+    Data_Get_Struct(self, rocksdb_pointer, db_pointer);
+
+    std::string key = std::string((char*)RSTRING_PTR(v_key), RSTRING_LEN(v_key));
+    std::string value;
+    if (db_pointer->db == NULL) {
+      rb_raise(rb_eRuntimeError, "db not open");
+    }
+
+    bool status = db_pointer->db->GetProperty(key, &value);
+    if(!status) return Qnil;
+    return rb_enc_str_new(value.data(), value.size(), rb_utf8_encoding());
+  }
+
   VALUE rocksdb_db_get(VALUE self, VALUE v_key){
     Check_Type(v_key, T_STRING);
 
