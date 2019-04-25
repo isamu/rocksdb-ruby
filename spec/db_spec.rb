@@ -1,15 +1,20 @@
 # -*- coding: utf-8 -*-
 require 'spec_helper'
 require "rocksdb"
+require 'fileutils'
 
 describe RocksDB do
+  before :all do
+    FileUtils.rm(Dir.glob('/tmp/file/*'))
+  end
+
   before do
     @rocksdb = RocksDB::DB.new("/tmp/file")
   end
 
   it "should get property" do
     @rocksdb.put("test:read", "1")
-    expect(@rocksdb.property("rocksdb.estimate-num-keys")).to eq("21")
+    expect(@rocksdb.property("rocksdb.estimate-num-keys")).to eq("1")
   end
 
   it 'should get data' do
