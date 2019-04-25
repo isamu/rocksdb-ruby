@@ -7,6 +7,11 @@ describe RocksDB do
     @rocksdb = RocksDB::DB.new("/tmp/file")
   end
 
+  it "should get property" do
+    @rocksdb.put("test:read", "1")
+    expect(@rocksdb.property("rocksdb.estimate-num-keys")).to eq("21")
+  end
+
   it 'should get data' do
     @rocksdb.put("test:read", "1")
     expect(@rocksdb.is_readonly?).to eq false
