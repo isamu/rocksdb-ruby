@@ -1,83 +1,142 @@
 #include "rocksdb_rb.h"
 #include "rocksdb_batch_rb.h"
+#include "rocksdb_iterator_rb.h"
 #include "ruby/encoding.h"
 #include <iostream>
 
 extern "C" {
 #include <ruby.h>
+  VALUE rocksdb_iterator_alloc(VALUE klass){
+    rocksdb_iterator_pointer* pointer = ALLOC(rocksdb_iterator_pointer);
+    pointer->it = NULL;
+    return Data_Wrap_Struct(klass, 0, -1, pointer);
+  }
 
   VALUE rocksdb_iterator_seek_to_first(VALUE klass){
-    rocksdb_iterator_pointer* rocksdb_it;
-    Data_Get_Struct(klass, rocksdb_iterator_pointer , rocksdb_it);
-    rocksdb_it->it->SeekToFirst();
+    rocksdb_iterator_pointer* pointer = get_iterator_for_read(&klass);
 
-    return Qnil;
+    pointer->it->SeekToFirst();
+
+    return Qtrue;
   }
 
   VALUE rocksdb_iterator_seek_to_last(VALUE klass){
-    rocksdb_iterator_pointer* rocksdb_it;
-    Data_Get_Struct(klass, rocksdb_iterator_pointer , rocksdb_it);
-    rocksdb_it->it->SeekToLast();
+    rocksdb_iterator_pointer* pointer = get_iterator_for_read(&klass);
+    pointer->it->SeekToLast();
 
-    return Qnil;
+    return Qtrue;
   }
 
   VALUE rocksdb_iterator_seek(VALUE klass, VALUE v_target){
-    Check_Type(v_target, T_STRING);
-    rocksdb::Slice target = rocksdb::Slice((char*)RSTRING_PTR(v_target), RSTRING_LEN(v_target));
+    rocksdb_iterator_pointer* pointer = get_iterator_for_read(&klass);
 
-    rocksdb_iterator_pointer* rocksdb_it;
-    Data_Get_Struct(klass, rocksdb_iterator_pointer , rocksdb_it);
-    rocksdb_it->it->Seek(target);
+    rocksdb::Slice target = SLICE_FROM_RB_VALUE(v_target);
+    pointer->it->Seek(target);
 
-    return Qnil;
+    return Qtrue;
   }
 
-  VALUE rocksdb_iterator_alloc(VALUE klass){
-    rocksdb_iterator_pointer* it = ALLOC(rocksdb_iterator_pointer);
-    return Data_Wrap_Struct(klass, 0, -1, it);
+  VALUE rocksdb_iterator_seek_prev(VALUE klass, VALUE v_target){
+    rocksdb_iterator_pointer* pointer = get_iterator_for_read(&klass);
+
+    rocksdb::Slice target = SLICE_FROM_RB_VALUE(v_target);
+
+    pointer->it->SeekForPrev(target);
+
+    return Qtrue;
   }
 
   VALUE rocksdb_iterator_valid(VALUE klass){
-    rocksdb_iterator_pointer* rocksdb_it;
-    Data_Get_Struct(klass, rocksdb_iterator_pointer , rocksdb_it);
-    return rocksdb_it->it->Valid() ? Qtrue : Qfalse;
+    rocksdb_iterator_pointer* pointer = get_iterator(&klass);
+
+    if(pointer != NULL && pointer->it != NULL) {
+      return pointer->it->Valid() ? Qtrue : Qfalse;
+    }
+
+    // Return falsey Qnil to indicate that iterator is closed
+    return Qnil;
   }
 
   VALUE rocksdb_iterator_key(VALUE klass){
-    rocksdb_iterator_pointer* rocksdb_it;
-    std::string value;
+    rocksdb_iterator_pointer* pointer = get_iterator_for_read(&klass);
 
-    Data_Get_Struct(klass, rocksdb_iterator_pointer , rocksdb_it);
-    value = rocksdb_it->it->key().ToString();
+    std::string value = pointer->it->key().ToString();
 
-    return rb_enc_str_new(value.data(), value.size(), rb_utf8_encoding());
+    return SLICE_TO_RB_STRING(value);
   }
-  
+
   VALUE rocksdb_iterator_value(VALUE klass){
-    rocksdb_iterator_pointer* rocksdb_it;
-    std::string value;
+    rocksdb_iterator_pointer* pointer = get_iterator_for_read(&klass);
 
-    Data_Get_Struct(klass, rocksdb_iterator_pointer , rocksdb_it);
-    value = rocksdb_it->it->value().ToString();
+    std::string value = pointer->it->value().ToString();
 
-    return rb_enc_str_new(value.data(), value.size(), rb_utf8_encoding());
-
+    return SLICE_TO_RB_STRING(value);
   }
-  
-  VALUE rocksdb_iterator_next(VALUE klass){
-    rocksdb_iterator_pointer* rocksdb_it;
-    Data_Get_Struct(klass, rocksdb_iterator_pointer , rocksdb_it);
-    rocksdb_it->it->Next();
 
-    return Qnil;
+  VALUE rocksdb_iterator_next(VALUE klass){
+    rocksdb_iterator_pointer* pointer = get_iterator_for_read(&klass);
+
+    pointer->it->Next();
+
+    return Qtrue;
+  }
+
+  VALUE rocksdb_iterator_prev(VALUE klass){
+    rocksdb_iterator_pointer* pointer = get_iterator_for_read(&klass);
+
+    pointer->it->Prev();
+
+    return Qtrue;
   }
 
   VALUE rocksdb_iterator_close(VALUE klass){
-    rocksdb_iterator_pointer* rocksdb_it;
-    Data_Get_Struct(klass, rocksdb_iterator_pointer , rocksdb_it);
-    delete rocksdb_it->it;
+    rocksdb_iterator_pointer* pointer = get_iterator(&klass);
 
-    return Qnil;
+    if(pointer == NULL) {
+      return Qfalse;
+    }
+
+    if(pointer->it == NULL) {
+      return Qfalse;
+    }
+
+    delete pointer->it;
+    pointer->it = NULL;
+
+    return Qtrue;
+  }
+
+  rocksdb_iterator_pointer* get_iterator_for_read(VALUE *klass) {
+    rocksdb_iterator_pointer* pointer = get_iterator(klass);
+
+    if (pointer == NULL) {
+      VALUE rb_rocksdb_class = rb_const_get(rb_cObject, rb_intern("RocksDB"));
+      VALUE rb_rocksdb_error = rb_const_get(rb_rocksdb_class, rb_intern("IteratorClosed"));
+
+      rb_raise(rb_rocksdb_error, "iterator is not initialized");
+    }
+
+    if (pointer->db_pointer->db == NULL) {
+      VALUE rb_rocksdb_class = rb_const_get(rb_cObject, rb_intern("RocksDB"));
+      VALUE rb_rocksdb_error = rb_const_get(rb_rocksdb_class, rb_intern("DatabaseClosed"));
+
+      rb_raise(rb_rocksdb_error, "database is closed");
+    }
+
+    if (pointer->it == NULL) {
+      VALUE rb_rocksdb_class = rb_const_get(rb_cObject, rb_intern("RocksDB"));
+      VALUE rb_rocksdb_error = rb_const_get(rb_rocksdb_class, rb_intern("IteratorClosed"));
+
+      rb_raise(rb_rocksdb_error, "iterator is closed");
+    }
+
+    return pointer;
+  }
+
+  rocksdb_iterator_pointer* get_iterator(VALUE *klass) {
+    rocksdb_iterator_pointer* pointer;
+    Data_Get_Struct(*klass, rocksdb_iterator_pointer, pointer);
+
+    return pointer;
   }
 }

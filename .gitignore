@@ -15,3 +15,7 @@ spec/reports
 test/tmp
 test/version_tmp
 tmp
+ext/**/*.o
+ext/**/Makefile
+ext/**/*.log
+ext/**/*.bundle

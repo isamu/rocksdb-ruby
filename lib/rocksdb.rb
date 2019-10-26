@@ -2,60 +2,45 @@ require "rocksdb/RocksDB" # the c extension
 require "rocksdb/ruby/version"
 
 module RocksDB
-  class DBError < StandardError; end
+  class Error < StandardError; end
+  class ReadOnly < RocksDB::Error; end
+  class StatusError < RocksDB::Error; end
+  class DatabaseClosed < RocksDB::Error; end
+  class IteratorClosed < RocksDB::Error; end
+
   class DB
     include Enumerable
 
-    @@cache = {}
-    
     class << self
-      def get_instance *args
-        readonly = !!(args[1] && args[1][:readonly])
-        key = args[0]
-        
-        if readonly
-          return new(*args)
-        end
-        unless @@cache[key]
-          @@cache[key] = new(*args)
-        end
-        @@cache[key]
+      def open(db_path, db_options = "")
+        new(db_path, db_options, false)
       end
-    end
-    
-    def initialize *args
-      readonly = !!(args[1] && args[1][:readonly])
-      @key = args[0]
-      if !readonly and @@cache[@key]
-        __initialize2(*args)
-        raise DBError.new("error #{@key.to_s} alread open")
-      end
-      __initialize(*args)
-      unless readonly
-        @@cache[@key] = self
+
+      def open_readonly(db_path, db_options = "")
+        new(db_path, db_options, true)
       end
     end
 
-    def close
-      @@cache.delete(@key)
-      __close
+    def initialize(path, db_options = "", is_readonly = false)
+      __initialize(path, is_readonly, db_options.to_s)
     end
-    
-    alias :includes? :exists?
-    alias :contains? :exists?
-    alias :member? :exists?
-    alias :[] :get
-    alias :[]= :put
-    alias :close! :close
 
-    def each(&block)
-      if block_given?
-        self.each_with_index do |key, value|
-          block.call(value)
-        end
+    def get(*args)
+      args.flatten!
+
+      if args.size == 1
+        get_one args.first
       else
-        self.iterator
+        get_many args
       end
     end
+
+    alias_method :includes?, :exists?
+    alias_method :contains?, :exists?
+    alias_method :member?, :exists?
+    alias_method :[], :get
+    alias_method :[]=, :put
+    alias_method :close!, :close
+    alias_method :each, :each_value
   end
 end

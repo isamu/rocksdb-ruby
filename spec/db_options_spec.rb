@@ -3,16 +3,20 @@ require 'spec_helper'
 require "rocksdb"
 
 describe RocksDB do
-  before do
-    @rocksdb = RocksDB::DB.new "/tmp/file3", {:max_bytes_for_level_base => 10485760, :max_grandparent_overlap_factor => 20}
-  end
+  context "options" do
+    it 'should set valid option' do
+      expect { RocksDB::DB.open temp_db_path, "compression=kNoCompression" }
+        .not_to raise_error
+    end
 
-  it 'should get data' do
-    @rocksdb.put("test:multi_db", "10")
-    expect(@rocksdb.get("test:multi_db")).to eq "10"
-  end
+    it 'should not set invalid option' do
+      expect { RocksDB::DB.open temp_db_path, "Omg_totaly_fake=4" }
+        .to raise_error(RocksDB::StatusError)
+    end
 
-  after do
-    @rocksdb.close
+    it 'should not segfault on jibberish' do
+      expect { RocksDB::DB.open temp_db_path, "%28324!@49124AASDAD21421\00" }
+        .to raise_error(RocksDB::StatusError)
+    end
   end
 end
