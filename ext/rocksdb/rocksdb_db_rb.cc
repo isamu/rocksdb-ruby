@@ -260,8 +260,7 @@ extern "C" {
   }
 
   VALUE raise_status_error(rocksdb::Status *status) {
-    VALUE rb_rocksdb_class = rb_const_get(rb_cObject, rb_intern("RocksDB"));
-    VALUE rb_rocksdb_error = rb_const_get(rb_rocksdb_class, rb_intern("StatusError"));
+    VALUE rb_rocksdb_error = RB_ROOT_CONST("RocksDB::StatusError");
 
     char const *error_text = status->ToString().c_str();
     rb_raise(rb_rocksdb_error, "%s", error_text);
@@ -290,8 +289,7 @@ extern "C" {
     check_is_db_ready(db_pointer);
 
     if (db_pointer->readonly) {
-      VALUE rb_rocksdb_class = rb_const_get(rb_cObject, rb_intern("RocksDB"));
-      VALUE rb_rocksdb_error = rb_const_get(rb_rocksdb_class, rb_intern("ReadOnly"));
+      VALUE rb_rocksdb_error = RB_ROOT_CONST("RocksDB::ReadOnly");
 
       rb_raise(rb_rocksdb_error, "database is read-only");
     }
@@ -301,15 +299,13 @@ extern "C" {
 
   void check_is_db_ready(rocksdb_pointer *db_pointer) {
     if (db_pointer == NULL) {
-      VALUE rb_rocksdb_class = rb_const_get(rb_cObject, rb_intern("RocksDB"));
-      VALUE rb_rocksdb_error = rb_const_get(rb_rocksdb_class, rb_intern("DatabaseClosed"));
+      VALUE rb_rocksdb_error = RB_ROOT_CONST("RocksDB::DatabaseClosed");
 
       rb_raise(rb_rocksdb_error, "database is not initialized");
     }
 
     if (db_pointer->db == NULL) {
-      VALUE rb_rocksdb_class = rb_const_get(rb_cObject, rb_intern("RocksDB"));
-      VALUE rb_rocksdb_error = rb_const_get(rb_rocksdb_class, rb_intern("DatabaseClosed"));
+      VALUE rb_rocksdb_error = RB_ROOT_CONST("RocksDB::DatabaseClosed");
 
       rb_raise(rb_rocksdb_error, "database is not opened");
     }

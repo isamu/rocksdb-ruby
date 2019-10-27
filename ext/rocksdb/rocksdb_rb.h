@@ -4,6 +4,11 @@
 #ifndef RUBY_ROCKSDB_H
 #define RUBY_ROCKSDB_H 1
 
+#ifndef NDEBUG
+#define TRACE(Out) (std::cerr << __FILE__ << ":" << __LINE__ << " " << Out << std::endl);
+#else
+#define TRACE(Out)
+#endif
 
 extern "C" {
 #include <ruby.h>
