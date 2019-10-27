@@ -409,6 +409,22 @@ Supported methods:
 * `key` returns current key
 * `value` returns current value
 
+## Upgrade
+
+When upgrading from `0.2` version, please note the following breaking changes:
+
+* `multi_get` will return `nil` instead of empty string
+* `RocksDB::DB.get_instance` is removed. Implement your own DB instance cache if needed
+* `each_` methods now returns `Enumerator` instead of `RocksDB::Iterator`
+
+Also, there some things that are now deprecated and will be removed in future versions:
+
+* `RocksDB::DBError` was deprecated and replaced with `RocksDB::Error`. Specific errors now have their own exception class: `ReadOnly`, `DatabaseClosed`, `IteratorClosed`, `StatusError`
+* `is_open?` was replaced with `open?`
+* `is_readonly?` was replaced with `writable?`
+* `multi_get` was replaced with `get_many`
+* `new_iterator` was replaced with `to_iterator`
+* `Iterator#valid` was replaced with `Iterator#valid?`
 
 ## Contributing
 
