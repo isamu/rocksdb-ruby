@@ -40,7 +40,7 @@ extern "C" {
     return Qtrue;
   }
 
-  VALUE rocksdb_iterator_seek_prev(VALUE klass, VALUE v_target){
+  VALUE rocksdb_iterator_seek_for_prev(VALUE klass, VALUE v_target){
     rocksdb_iterator_pointer* pointer = get_iterator_for_read(&klass);
 
     rocksdb::Slice target = SLICE_FROM_RB_VALUE(v_target);

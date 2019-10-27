@@ -250,18 +250,37 @@ describe RocksDB::Iterator do
     expect(@iterator.value).to eq "e"
   end
 
-  it 'should seek to position' do
-    @iterator.seek "test1:0003"
+  context "seek" do
+    it 'should seek to record when record exists' do
+      @iterator.seek "test1:0003"
 
-    expect(@iterator.key).to eq "test1:0003"
-    expect(@iterator.value).to eq "c"
+      expect(@iterator.key).to eq "test1:0003"
+      expect(@iterator.value).to eq "c"
+    end
+
+    it 'should seek to first' do
+      @iterator.seek "alpha"
+
+      expect(@iterator).to be_valid
+      expect(@iterator.key).to eq "test1:0001"
+      expect(@iterator.value).to eq "a"
+    end
   end
 
-  it 'should seek to previous' do
-    @iterator.seek_to_previous "test1:0004"
+  context "previous" do
+    it 'should seek to record when target record exists' do
+      @iterator.seek_for_previous "test1:0004"
 
-    expect(@iterator.key).to eq "test1:0004"
-    expect(@iterator.value).to eq "d"
+      expect(@iterator.key).to eq "test1:0004"
+      expect(@iterator.value).to eq "d"
+    end
+
+    it 'should seek to closest record when target is not exists' do
+      @iterator.seek_for_previous "test2"
+
+      expect(@iterator.key).to eq "test1:0005"
+      expect(@iterator.value).to eq "e"
+    end
   end
 
   it 'should go forward' do

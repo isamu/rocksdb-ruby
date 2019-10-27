@@ -48,7 +48,7 @@ extern "C" {
     rb_define_method(cRocksdb_iterator, "seek_to_first", (METHOD)rocksdb_iterator_seek_to_first, 0);
     rb_define_method(cRocksdb_iterator, "seek_to_last", (METHOD)rocksdb_iterator_seek_to_last, 0);
     rb_define_method(cRocksdb_iterator, "seek", (METHOD)rocksdb_iterator_seek, 1);
-    rb_define_method(cRocksdb_iterator, "seek_to_previous", (METHOD)rocksdb_iterator_seek, 1);
+    rb_define_method(cRocksdb_iterator, "seek_for_previous", (METHOD)rocksdb_iterator_seek_for_prev, 1);
     rb_define_method(cRocksdb_iterator, "next", (METHOD)rocksdb_iterator_next, 0);
     rb_define_method(cRocksdb_iterator, "previous", (METHOD)rocksdb_iterator_prev, 0);
 
