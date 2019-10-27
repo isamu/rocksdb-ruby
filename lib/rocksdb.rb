@@ -16,19 +16,29 @@ module RocksDB
 
   class << self
     def open(db_path, db_options = "")
-      ::RocksDB::DB.new(db_path, db_options, false)
+      ::RocksDB::DB.new(db_path, db_options, readonly: false)
     end
 
     def open_readonly(db_path, db_options = "")
-      ::RocksDB::DB.new(db_path, db_options, true)
+      ::RocksDB::DB.new(db_path, db_options, readonly: true)
     end
   end
 
   class DB
     extend Forwardable
 
-    def initialize(path, db_options = "", is_readonly = false)
-      __initialize(path, is_readonly, db_options.to_s)
+    def initialize(path, rocksdb_options = "", options = {})
+      is_readonly == options[:readonly] || false
+
+      if rocksdb_options.is_a? Hash
+        is_readonly = rocksdb_options[:readonly]
+
+        rocksdb_options = rocksdb_options.map do |key, value|
+          [key, value].join("=")
+        end.join(";")
+      end
+
+      __initialize(path, is_readonly, rocksdb_options.to_s)
     end
 
     def get(*args)

@@ -36,6 +36,7 @@ extern "C" {
 
     rb_define_private_method(cRocksdb_db, "__initialize", (METHOD)rocksdb_db_init, 3);
     rb_define_method(cRocksdb_db, "property", (METHOD)rocksdb_db_property, 1);
+    rb_define_method(cRocksdb_db, "options", (METHOD)rocksdb_db_options, 0);
     rb_define_method(cRocksdb_db, "put", (METHOD)rocksdb_db_put, 2);
     rb_define_method(cRocksdb_db, "write", (METHOD)rocksdb_db_write, 1);
     rb_define_method(cRocksdb_db, "get_one", (METHOD)rocksdb_db_get, 1);
