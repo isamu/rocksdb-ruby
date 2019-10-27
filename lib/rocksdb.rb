@@ -14,18 +14,18 @@ module RocksDB
     include Enumerable
   end
 
+  class << self
+    def open(db_path, db_options = "")
+      ::RocksDB::DB.new(db_path, db_options, false)
+    end
+
+    def open_readonly(db_path, db_options = "")
+      ::RocksDB::DB.new(db_path, db_options, true)
+    end
+  end
+
   class DB
     extend Forwardable
-
-    class << self
-      def open(db_path, db_options = "")
-        new(db_path, db_options, false)
-      end
-
-      def open_readonly(db_path, db_options = "")
-        new(db_path, db_options, true)
-      end
-    end
 
     def initialize(path, db_options = "", is_readonly = false)
       __initialize(path, is_readonly, db_options.to_s)

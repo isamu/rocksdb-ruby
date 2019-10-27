@@ -4,14 +4,14 @@ require "rocksdb"
 
 describe RocksDB do
   before do
-    @rocksdb = RocksDB::DB.open temp_db_path
+    @rocksdb = RocksDB.open temp_db_path
     @rocksdb.put("test", "value")
     @rocksdb.close
   end
 
   context "when writable" do
     before do
-      @rocksdb = RocksDB::DB.open temp_db_path
+      @rocksdb = RocksDB.open temp_db_path
     end
 
     it 'writable? is true' do
@@ -34,7 +34,7 @@ describe RocksDB do
 
   context "when not writable" do
     before do
-      @rocksdb = RocksDB::DB.open_readonly temp_db_path
+      @rocksdb = RocksDB.open_readonly temp_db_path
     end
 
     it 'writable? is false' do

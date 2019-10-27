@@ -25,6 +25,7 @@ extern "C" {
     batch->Put(key, value);
     return Qnil;
   }
+
   VALUE rocksdb_write_batch_delete(VALUE self, VALUE v_key){
     Check_Type(v_key, T_STRING);
 

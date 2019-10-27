@@ -5,7 +5,7 @@ require 'fileutils'
 
 describe RocksDB do
   before do
-    @rocksdb = RocksDB::DB.open(temp_db_path)
+    @rocksdb = RocksDB.open(temp_db_path)
   end
 
   context "close" do
@@ -217,11 +217,11 @@ describe RocksDB do
     key = "test"
     value = "1"
 
-    expect{RocksDB::DB.open(temp_db_path)}.to raise_error(RocksDB::Error)
+    expect{RocksDB.open(temp_db_path)}.to raise_error(RocksDB::Error)
 
     expect(@rocksdb.put("test:put", "1")).to be true
 
-    @rocksdb2 = RocksDB::DB.open_readonly(temp_db_path)
+    @rocksdb2 = RocksDB.open_readonly(temp_db_path)
     expect(@rocksdb2.writable?).to eq false
     expect(@rocksdb2.get("test:put")).to eq "1"
 
@@ -229,12 +229,12 @@ describe RocksDB do
 
     expect(@rocksdb.open?).to eq false
 
-    @rocksdb = RocksDB::DB.open(temp_db_path)
+    @rocksdb = RocksDB.open(temp_db_path)
     expect(@rocksdb.writable?).to eq true
     expect(@rocksdb.open?).to eq true
     expect(@rocksdb.put("test:put", "2")).to be true
 
-    @rocksdb3 = RocksDB::DB.open_readonly(temp_db_path)
+    @rocksdb3 = RocksDB.open_readonly(temp_db_path)
     expect(@rocksdb3.writable?).to eq false
     expect(@rocksdb3.open?).to eq true
     expect(@rocksdb3.get("test:put")).to eq "2"

@@ -4,7 +4,7 @@ require "RocksDB"
 
 describe RocksDB::Iterator do
   before do
-    @rocksdb = RocksDB::DB.open temp_db_path
+    @rocksdb = RocksDB.open temp_db_path
 
     @rocksdb.put("test1:0001", "a")
     @rocksdb.put("test1:0002", "b")

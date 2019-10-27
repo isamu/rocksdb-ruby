@@ -44,7 +44,7 @@ root as first argument. By default, it will create path if missing.
     require "rocksdb"
 
     # Open for reads and writes
-    rocksdb = RocksDB::DB.open "/tmp/file1"
+    rocksdb = RocksDB.open "/tmp/file1"
 ```
 
 You can pass RocksDB Option String as second argument:
@@ -54,7 +54,7 @@ You can pass RocksDB Option String as second argument:
     require "rocksdb"
 
     # Open for reads and writes
-    rocksdb = RocksDB::DB.open "/tmp/file2", "compression=kNoCompression"
+    rocksdb = RocksDB.open "/tmp/file2", "compression=kNoCompression"
 ```
 
 Read more about Option Sting: https://github.com/facebook/rocksdb/wiki/Option-String-and-Option-Map#option-string
@@ -68,7 +68,7 @@ You can read and write keys using `put` and `get` methods:
     require "rocksdb"
 
     # Open for reads and writes
-    rocksdb = RocksDB::DB.open "/tmp/file3"
+    rocksdb = RocksDB.open "/tmp/file3"
 
     # Store string `World` under key `Hello`
     rocksdb.put "Hello", "World"
@@ -85,7 +85,7 @@ You can also use Hash-like methods `[]` and `[]=`
     require "rocksdb"
 
     # Open for reads and writes
-    rocksdb = RocksDB::DB.open "/tmp/file4"
+    rocksdb = RocksDB.open "/tmp/file4"
 
     # Store string `World` under key `Hello`
     rocksdb["Hello"] = "World"
@@ -102,7 +102,7 @@ If key does not exists, RocksDB will return nil:
     require "rocksdb"
 
     # Open for reads and writes
-    rocksdb = RocksDB::DB.open "/tmp/file5"
+    rocksdb = RocksDB.open "/tmp/file5"
 
     # Try to read a key, that does not exists
     result = rocksdb.get "Missing Key"
@@ -121,7 +121,7 @@ If you want to get multiple keys at the same time, you can use `get` with multip
     require "rocksdb"
 
     # Open for reads and writes
-    rocksdb = RocksDB::DB.open "/tmp/file6"
+    rocksdb = RocksDB.open "/tmp/file6"
 
     rocksdb.put "First Key", "First Value"
     rocksdb.put "Second Key", "Second Value"
@@ -141,7 +141,7 @@ You can check, if key exists:
     require "rocksdb"
 
     # Open for reads and writes
-    rocksdb = RocksDB::DB.open "/tmp/file7"
+    rocksdb = RocksDB.open "/tmp/file7"
 
     rocksdb.put "Real Key", "Real Value"
 
@@ -159,7 +159,7 @@ And you can delete keys, when not needed:
     require "rocksdb"
 
     # Open for reads and writes
-    rocksdb = RocksDB::DB.open "/tmp/file8"
+    rocksdb = RocksDB.open "/tmp/file8"
 
     rocksdb.put "Delete Me", "Memory"
     rocksdb.exists? "Delete Me"
@@ -179,7 +179,7 @@ You can open RocksDB only for reading:
     require "rocksdb"
 
     # Open only for reading
-    rocksdb = RocksDB::DB.open_readonly "/tmp/file9"
+    rocksdb = RocksDB.open_readonly "/tmp/file9"
 
     puts rocksdb.writable?
     # => false
@@ -199,7 +199,7 @@ You can enumerate over all values using `each` method. Note how values are sorte
     require "rocksdb"
 
     # Open for reads and writes
-    rocksdb = RocksDB::DB.open "/tmp/file10"
+    rocksdb = RocksDB.open "/tmp/file10"
 
     rocksdb.put "One", "1"
     rocksdb.put "Two", "2"
@@ -221,7 +221,7 @@ Additionally, you can enumerate in reverse order with `reverse_each`:
     require "rocksdb"
 
     # Open for reads and writes
-    rocksdb = RocksDB::DB.open "/tmp/file11"
+    rocksdb = RocksDB.open "/tmp/file11"
 
     rocksdb.put "One", "1"
     rocksdb.put "Two", "2"
@@ -243,7 +243,7 @@ You can enumerate over keys with `each_key` or in reverse order with `reverse_ea
     require "rocksdb"
 
     # Open for reads and writes
-    rocksdb = RocksDB::DB.open "/tmp/file12"
+    rocksdb = RocksDB.open "/tmp/file12"
 
     rocksdb.put "One", "1"
     rocksdb.put "Two", "2"
@@ -273,7 +273,7 @@ You can enumerate over both keys and values with `each_pair` and in reverse orde
     require "rocksdb"
 
     # Open for reads and writes
-    rocksdb = RocksDB::DB.open "/tmp/file13"
+    rocksdb = RocksDB.open "/tmp/file13"
 
     rocksdb.put "One", "1"
     rocksdb.put "Two", "2"
@@ -295,7 +295,7 @@ Additionally, you can enumerate over keys that start with a specific prefix with
     require "rocksdb"
 
     # Open for reads and writes
-    rocksdb = RocksDB::DB.open "/tmp/file14"
+    rocksdb = RocksDB.open "/tmp/file14"
 
     rocksdb.put "my:1", "1"
     rocksdb.put "my:2", "2"
@@ -316,7 +316,7 @@ Or you can scan over the ranges of keys with `each_range`. Note, range is `[star
     require "rocksdb"
 
     # Open for reads and writes
-    rocksdb = RocksDB::DB.open "/tmp/file15"
+    rocksdb = RocksDB.open "/tmp/file15"
 
     10.times do |count|
       rocksdb.put "key:#{count}", "#{count}"
@@ -340,7 +340,7 @@ You can use `RocksDB::Batch` to atomically insert big chunks of data.
     require "rocksdb"
 
     # Open for reads and writes
-    rocksdb = RocksDB::DB.open "/tmp/file16"
+    rocksdb = RocksDB.open "/tmp/file16"
 
     batch = RocksDB::Batch.new
 
@@ -367,7 +367,7 @@ You can get RocksDB Iterator with `new_iterator` method to iterate over your dat
     require "rocksdb"
 
     # Open for reads and writes
-    rocksdb = RocksDB::DB.open "/tmp/file16"
+    rocksdb = RocksDB.open "/tmp/file16"
 
     10.times do |count|
       rocksdb.put "key:#{count}", "#{count}"

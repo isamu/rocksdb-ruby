@@ -5,7 +5,7 @@ require "rocksdb"
 describe RocksDB do
   context "null-terminated strings" do
     before do
-      @rocksdb = RocksDB::DB.open temp_db_path
+      @rocksdb = RocksDB.open temp_db_path
 
       @rocksdb.put("test:text1\0a", "hello")
       @rocksdb.put("test:plain", "he\0llo")
