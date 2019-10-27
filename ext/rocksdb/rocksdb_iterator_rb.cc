@@ -64,15 +64,21 @@ extern "C" {
   VALUE rocksdb_iterator_key(VALUE klass){
     rocksdb_iterator_pointer* pointer = get_iterator_for_read(&klass);
 
-    std::string value = pointer->it->key().ToString();
+    // It seems to be safe to call `key()` even if iterator is not Valid()
+    rocksdb::Slice key = pointer->it->key();
 
-    return SLICE_TO_RB_STRING(value);
+    return SLICE_TO_RB_STRING(key);
   }
 
   VALUE rocksdb_iterator_value(VALUE klass){
     rocksdb_iterator_pointer* pointer = get_iterator_for_read(&klass);
 
-    std::string value = pointer->it->value().ToString();
+    // It it not safe to call `value()` if iterator is not Valid()
+    if(!pointer->it->Valid()) {
+      return Qnil;
+    }
+
+    rocksdb::Slice value = pointer->it->value();
 
     return SLICE_TO_RB_STRING(value);
   }
