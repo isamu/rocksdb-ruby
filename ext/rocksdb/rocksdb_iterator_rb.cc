@@ -263,24 +263,15 @@ extern "C" {
     rocksdb_iterator_pointer* pointer = get_iterator(klass);
 
     if (pointer == NULL) {
-      VALUE rb_rocksdb_class = rb_const_get(rb_cObject, rb_intern("RocksDB"));
-      VALUE rb_rocksdb_error = rb_const_get(rb_rocksdb_class, rb_intern("IteratorClosed"));
-
-      rb_raise(rb_rocksdb_error, "iterator is not initialized");
+      rb_raise(cRocksdb_iterator_closed, "iterator is not initialized");
     }
 
     if (pointer->db_pointer->db == NULL) {
-      VALUE rb_rocksdb_class = rb_const_get(rb_cObject, rb_intern("RocksDB"));
-      VALUE rb_rocksdb_error = rb_const_get(rb_rocksdb_class, rb_intern("DatabaseClosed"));
-
-      rb_raise(rb_rocksdb_error, "database is closed");
+      rb_raise(cRocksdb_database_closed, "database is closed");
     }
 
     if (pointer->it == NULL) {
-      VALUE rb_rocksdb_class = rb_const_get(rb_cObject, rb_intern("RocksDB"));
-      VALUE rb_rocksdb_error = rb_const_get(rb_rocksdb_class, rb_intern("IteratorClosed"));
-
-      rb_raise(rb_rocksdb_error, "iterator is closed");
+      rb_raise(cRocksdb_iterator_closed, "iterator is closed");
     }
 
     return pointer;

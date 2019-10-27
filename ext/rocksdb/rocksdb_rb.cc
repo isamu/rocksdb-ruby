@@ -5,18 +5,32 @@
 #include "rocksdb_iterator_rb.h"
 
 extern "C" {
+  VALUE cRocksdb;
   VALUE cRocksdb_iterator;
 
-  void Init_RocksDB(){
+  VALUE cRocksdb_database_closed;
+  VALUE cRocksdb_iterator_closed;
+  VALUE cRocksdb_status_error;
+  VALUE cRocksdb_readonly;
 
-    VALUE cRocksdb;
+  void Init_RocksDB(){
     VALUE cRocksdb_db;
     VALUE cRocksdb_write_batch;
     VALUE cRocksdb_read_options;
     VALUE cRocksdb_write_options;
     VALUE cRocksdb_status;
+    VALUE cRocksdb_error;
+
+    VALUE rb_cStandardError = rb_const_get(rb_cObject, rb_intern("StandardError"));
 
     cRocksdb = rb_define_module("RocksDB");
+    cRocksdb_error = rb_define_class_under(cRocksdb, "Error", rb_cStandardError);
+
+    cRocksdb_readonly = rb_define_class_under(cRocksdb, "ReadOnly", cRocksdb_error);
+    cRocksdb_status_error = rb_define_class_under(cRocksdb, "StatusError", cRocksdb_error);
+    cRocksdb_database_closed = rb_define_class_under(cRocksdb, "DatabaseClosed", cRocksdb_error);
+    cRocksdb_iterator_closed = rb_define_class_under(cRocksdb, "IteratorClosed", cRocksdb_error);
+
     cRocksdb_db = rb_define_class_under(cRocksdb, "DB", rb_cObject);
     rb_define_alloc_func(cRocksdb_db, db_alloc);
 

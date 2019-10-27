@@ -260,10 +260,8 @@ extern "C" {
   }
 
   VALUE raise_status_error(rocksdb::Status *status) {
-    VALUE rb_rocksdb_error = RB_ROOT_CONST("RocksDB::StatusError");
-
     char const *error_text = status->ToString().c_str();
-    rb_raise(rb_rocksdb_error, "%s", error_text);
+    rb_raise(cRocksdb_status_error, "%s", error_text);
 
     return Qnil;
   }
@@ -289,9 +287,7 @@ extern "C" {
     check_is_db_ready(db_pointer);
 
     if (db_pointer->readonly) {
-      VALUE rb_rocksdb_error = RB_ROOT_CONST("RocksDB::ReadOnly");
-
-      rb_raise(rb_rocksdb_error, "database is read-only");
+      rb_raise(cRocksdb_readonly, "database is read-only");
     }
 
     return db_pointer;
@@ -299,15 +295,11 @@ extern "C" {
 
   void check_is_db_ready(rocksdb_pointer *db_pointer) {
     if (db_pointer == NULL) {
-      VALUE rb_rocksdb_error = RB_ROOT_CONST("RocksDB::DatabaseClosed");
-
-      rb_raise(rb_rocksdb_error, "database is not initialized");
+      rb_raise(cRocksdb_database_closed, "database is not initialized");
     }
 
     if (db_pointer->db == NULL) {
-      VALUE rb_rocksdb_error = RB_ROOT_CONST("RocksDB::DatabaseClosed");
-
-      rb_raise(rb_rocksdb_error, "database is not opened");
+      rb_raise(cRocksdb_database_closed, "database is not opened");
     }
   }
 }

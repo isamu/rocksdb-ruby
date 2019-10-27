@@ -16,7 +16,13 @@ extern "C" {
 #define SLICE_FROM_RB_VALUE(entity) (rocksdb::Slice((char*)StringValuePtr(entity), RSTRING_LEN(entity)))
 #define STRING_FROM_RB_VALUE(entity) (std::string((char*)StringValuePtr(entity), RSTRING_LEN(entity)));
 
+  extern VALUE cRocksdb;
   extern VALUE cRocksdb_iterator;
+
+  extern VALUE cRocksdb_database_closed;
+  extern VALUE cRocksdb_iterator_closed;
+  extern VALUE cRocksdb_status_error;
+  extern VALUE cRocksdb_readonly;
 
   typedef VALUE (*METHOD)(...);
 
