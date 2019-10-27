@@ -31,7 +31,7 @@ module RocksDB
       is_readonly = options[:readonly] || false
 
       if rocksdb_options.is_a? Hash
-        is_readonly = rocksdb_options[:readonly]
+        is_readonly = rocksdb_options.delete(:readonly)
 
         rocksdb_options = rocksdb_options.map do |key, value|
           [key, value].join("=")
