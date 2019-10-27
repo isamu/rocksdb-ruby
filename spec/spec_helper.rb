@@ -6,6 +6,7 @@ $: << File.dirname(__FILE__) + '/../ext/rocksdb'
 
 RSpec.configure do |config|
   config.formatter = :documentation
+  config.filter_run_when_matching :focus
 
   def temp_db_path
     return @_temp_db_path if defined? @_temp_db_path
