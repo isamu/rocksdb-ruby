@@ -115,6 +115,7 @@ extern "C" {
     }
 
     RB_CLOSE_ITERATOR(klass);
+    return Qtrue;
   }
 
   VALUE rocksdb_iterator_reverse_each(VALUE klass){
@@ -132,6 +133,7 @@ extern "C" {
     }
 
     RB_CLOSE_ITERATOR(klass);
+    return Qtrue;
   }
 
   VALUE rocksdb_iterator_each_key(VALUE klass){
@@ -150,6 +152,7 @@ extern "C" {
     }
 
     RB_CLOSE_ITERATOR(klass);
+    return Qtrue;
   }
 
   VALUE rocksdb_iterator_reverse_each_key(VALUE klass){
@@ -167,6 +170,7 @@ extern "C" {
     }
 
     RB_CLOSE_ITERATOR(klass);
+    return Qtrue;
   }
 
   VALUE rocksdb_iterator_each_pair(VALUE klass){
@@ -186,6 +190,7 @@ extern "C" {
     }
 
     RB_CLOSE_ITERATOR(klass);
+    return Qtrue;
   }
 
   VALUE rocksdb_iterator_reverse_each_pair(VALUE klass){
@@ -205,6 +210,7 @@ extern "C" {
     }
 
     RB_CLOSE_ITERATOR(klass);
+    return Qtrue;
   }
 
   VALUE rocksdb_iterator_each_prefix(VALUE klass, VALUE v_prefix){
@@ -225,6 +231,7 @@ extern "C" {
     }
 
     RB_CLOSE_ITERATOR(klass);
+    return Qtrue;
   }
 
   VALUE rocksdb_iterator_each_range(VALUE klass, VALUE v_start, VALUE v_limit){
@@ -246,6 +253,7 @@ extern "C" {
     }
 
     RB_CLOSE_ITERATOR(klass);
+    return Qtrue;
   }
 
   VALUE rocksdb_iterator_close(VALUE klass){
