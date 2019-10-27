@@ -1,6 +1,6 @@
 # Deprecated methods, kept for backward compatibility
 module RocksDB
-  class DBError < ::RocksDB::Error;
+  class DBError < ::RocksDB::Error; end;
 
   class Iterator
     extend Gem::Deprecate
