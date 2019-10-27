@@ -45,7 +45,7 @@ extern "C" {
     rb_define_method(cRocksdb_db, "exists?", (METHOD)rocksdb_db_exists, 1);
     rb_define_method(cRocksdb_db, "close", (METHOD)rocksdb_db_close, 0);
     rb_define_method(cRocksdb_db, "debug", (METHOD)rocksdb_db_debug, 0);
-    rb_define_method(cRocksdb_db, "new_iterator", (METHOD)rocksdb_db_new_iterator, 0);
+    rb_define_method(cRocksdb_db, "to_iterator", (METHOD)rocksdb_db_to_iterator, 0);
     rb_define_method(cRocksdb_db, "compact", (METHOD)rocksdb_db_compact, -1);
     rb_define_method(cRocksdb_db, "writable?", (METHOD)rocksdb_db_is_writable, 0);
     rb_define_method(cRocksdb_db, "open?", (METHOD)rocksdb_db_is_open, 0);

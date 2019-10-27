@@ -12,7 +12,7 @@ describe RocksDB::Iterator do
     @rocksdb.put("test1:0004", "d")
     @rocksdb.put("test1:0005", "e")
 
-    @iterator = @rocksdb.new_iterator
+    @iterator = @rocksdb.to_iterator
   end
 
   context "valid" do

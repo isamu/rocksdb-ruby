@@ -370,7 +370,7 @@ Read more about RocksDB batches: https://github.com/facebook/rocksdb/wiki/Basic-
 
 # Iterator
 
-You can get RocksDB Iterator with `new_iterator` method to iterate over your data:
+You can get RocksDB Iterator with `to_iterator` method to iterate over your data:
 
 ```ruby
 
@@ -384,7 +384,7 @@ You can get RocksDB Iterator with `new_iterator` method to iterate over your dat
     end
 
     # Get Iterator
-    iterator = rocksdb.new_iterator
+    iterator = rocksdb.to_iterator
     # Seek to some position. You can also use seek("key") to
     iterator.seek_to_first
 

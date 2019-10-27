@@ -229,7 +229,7 @@ extern "C" {
   }
 
 
-  VALUE rocksdb_db_new_iterator(VALUE self){
+  VALUE rocksdb_db_to_iterator(VALUE self){
     rocksdb_pointer* db_pointer = get_db_for_read(&self);
     rocksdb_iterator_pointer* rocksdb_it;
 
