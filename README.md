@@ -47,7 +47,17 @@ root as first argument. By default, it will create path if missing.
     rocksdb = RocksDB.open "/tmp/file1"
 ```
 
-You can pass RocksDB Option String as second argument:
+You can pass RocksDB options as second argument:
+
+```ruby
+
+    require "rocksdb"
+
+    # Open for reads and writes
+    rocksdb = RocksDB.open "/tmp/file2", compression: "kNoCompression"
+```
+
+Or you can pass raw Option String:
 
 ```ruby
 
@@ -389,7 +399,7 @@ You can get RocksDB Iterator with `new_iterator` method to iterate over your dat
 Supported methods:
 
 * `seek(key)` seeks to closest key to given prefix at beginning
-* `seek_previous(key)`seeks to closest key to given prefix at end
+* `seek_for_previous(key)`seeks to closest key to given prefix at end
 * `seek_to_first` seeks to the first key
 * `seek_to_last` seeks to the last key
 * `next` seeks to the next key
@@ -398,6 +408,7 @@ Supported methods:
 * `close` closes iterator
 * `key` returns current key
 * `value` returns current value
+
 
 ## Contributing
 
