@@ -28,7 +28,7 @@ module RocksDB
     extend Forwardable
 
     def initialize(path, rocksdb_options = "", options = {})
-      is_readonly == options[:readonly] || false
+      is_readonly = options[:readonly] || false
 
       if rocksdb_options.is_a? Hash
         is_readonly = rocksdb_options[:readonly]

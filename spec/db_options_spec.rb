@@ -2,7 +2,7 @@
 require 'spec_helper'
 require "rocksdb"
 
-describe RocksDB, :focus do
+describe RocksDB do
   context "options" do
     let(:rocksdb) { RocksDB.open temp_db_path, "WAL_size_limit_MB=16" }
 
