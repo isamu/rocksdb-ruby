@@ -35,14 +35,6 @@ extern "C" {
     rb_define_method(cRocksdb_db, "writable?", (METHOD)rocksdb_db_is_writable, 0);
     rb_define_method(cRocksdb_db, "open?", (METHOD)rocksdb_db_is_open, 0);
 
-    rb_define_method(cRocksdb_db, "each_value", (METHOD)rocksdb_db_each, 0);
-    rb_define_method(cRocksdb_db, "each_key", (METHOD)rocksdb_db_each_key, 0);
-    rb_define_method(cRocksdb_db, "each_pair", (METHOD)rocksdb_db_each_pair, 0);
-    rb_define_method(cRocksdb_db, "reverse_each", (METHOD)rocksdb_db_reverse_each, 0);
-
-    rb_define_method(cRocksdb_db, "each_prefix", (METHOD)rocksdb_db_each_prefix, 1);
-    rb_define_method(cRocksdb_db, "each_range", (METHOD)rocksdb_db_each_range, 2);
-
     cRocksdb_write_batch = rb_define_class_under(cRocksdb, "Batch", rb_cObject);
     rb_define_alloc_func(cRocksdb_write_batch, batch_alloc);
     rb_define_private_method(cRocksdb_write_batch, "initialize", (METHOD)rocksdb_write_batch_init, 0);
@@ -64,6 +56,16 @@ extern "C" {
     rb_define_method(cRocksdb_iterator, "value", (METHOD)rocksdb_iterator_value, 0);
 
     rb_define_method(cRocksdb_iterator, "close", (METHOD)rocksdb_iterator_close, 0);
+
+    rb_define_method(cRocksdb_iterator, "each", (METHOD)rocksdb_iterator_each, 0);
+    rb_define_method(cRocksdb_iterator, "reverse_each", (METHOD)rocksdb_iterator_reverse_each, 0);
+    rb_define_method(cRocksdb_iterator, "each_key", (METHOD)rocksdb_iterator_each_key, 0);
+    rb_define_method(cRocksdb_iterator, "reverse_each_key", (METHOD)rocksdb_iterator_reverse_each_key, 0);
+    rb_define_method(cRocksdb_iterator, "each_pair", (METHOD)rocksdb_iterator_each_pair, 0);
+    rb_define_method(cRocksdb_iterator, "reverse_each_pair", (METHOD)rocksdb_iterator_reverse_each_pair, 0);
+
+    rb_define_method(cRocksdb_iterator, "each_prefix", (METHOD)rocksdb_iterator_each_prefix, 1);
+    rb_define_method(cRocksdb_iterator, "each_range", (METHOD)rocksdb_iterator_each_range, 2);
 
     cRocksdb_status = rb_define_class_under(cRocksdb, "Status", rb_cObject);
     cRocksdb_read_options = rb_define_class_under(cRocksdb, "ReadOptions", rb_cObject);

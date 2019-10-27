@@ -1,6 +1,8 @@
 require "rocksdb/RocksDB" # the c extension
 require "rocksdb/ruby/version"
 
+require 'forwardable'
+
 module RocksDB
   class Error < StandardError; end
   class ReadOnly < RocksDB::Error; end
@@ -8,8 +10,12 @@ module RocksDB
   class DatabaseClosed < RocksDB::Error; end
   class IteratorClosed < RocksDB::Error; end
 
-  class DB
+  class Iterator
     include Enumerable
+  end
+
+  class DB
+    extend Forwardable
 
     class << self
       def open(db_path, db_options = "")
@@ -41,6 +47,10 @@ module RocksDB
     alias_method :[], :get
     alias_method :[]=, :put
     alias_method :close!, :close
-    alias_method :each, :each_value
+
+    def_delegators :new_iterator,
+                   :each, :reverse_each, :each_key, :reverse_each_key,
+                   :each_pair, :reverse_each_pair,
+                   :each_prefix, :each_range
   end
 end

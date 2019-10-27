@@ -231,12 +231,12 @@ Additionally, you can enumerate in reverse order with `reverse_each`:
       puts value
     end
 
-    # => 3
     # => 2
+    # => 3
     # => 1
 ```
 
-You can enumerate over keys with `each_key`:
+You can enumerate over keys with `each_key` or in reverse order with `reverse_each_key`:
 
 ```ruby
 
@@ -256,9 +256,17 @@ You can enumerate over keys with `each_key`:
     # => One
     # => Three
     # => Two
+
+    rocksdb.reverse_each_key do |key|
+      puts key
+    end
+
+    # => Two
+    # => Three
+    # => One
 ```
 
-You can enumerate over both keys and values with `each_pair`:
+You can enumerate over both keys and values with `each_pair` and in reverse order with `reverse_each_pair`:
 
 ```ruby
 
@@ -301,7 +309,7 @@ Additionally, you can enumerate over keys that start with a specific prefix with
     # => my:2 = 2
 ```
 
-Or you can scan over the ranges of keys with `each_range`
+Or you can scan over the ranges of keys with `each_range`. Note, range is `[start, limit]`:
 
 ```ruby
 

@@ -21,5 +21,20 @@ extern "C" {
   VALUE rocksdb_iterator_next(VALUE klass);
   VALUE rocksdb_iterator_prev(VALUE klass);
   VALUE rocksdb_iterator_close(VALUE klass);
+
+  VALUE rocksdb_iterator_each(VALUE klass);
+  VALUE rocksdb_iterator_reverse_each(VALUE klass);
+
+  VALUE rocksdb_iterator_each_key(VALUE klass);
+  VALUE rocksdb_iterator_reverse_each_key(VALUE klass);
+
+  VALUE rocksdb_iterator_each_pair(VALUE klass);
+  VALUE rocksdb_iterator_reverse_each_pair(VALUE klass);
+
+  VALUE rocksdb_iterator_each_prefix(VALUE klass, VALUE v_prefix);
+  VALUE rocksdb_iterator_each_range(VALUE klass, VALUE v_start, VALUE v_limit);
+
+  void iterate_each(rocksdb::Iterator* it);
+  void iterate_each_pair(rocksdb::Iterator* it);
 }
 
