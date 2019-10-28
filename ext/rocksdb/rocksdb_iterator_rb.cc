@@ -12,8 +12,20 @@ extern "C" {
 
   VALUE rocksdb_iterator_alloc(VALUE klass){
     rocksdb_iterator_pointer* pointer = ALLOC(rocksdb_iterator_pointer);
-    pointer->it = NULL;
-    return Data_Wrap_Struct(klass, 0, -1, pointer);
+    pointer->it = nullptr;
+    pointer->db_pointer = nullptr;
+    return Data_Wrap_Struct(klass, 0, iterator_free, pointer);
+  }
+
+  void iterator_free(rocksdb_iterator_pointer* pointer){
+    if(pointer == nullptr) {
+      return;
+    }
+
+    pointer->db_pointer = nullptr;
+
+    delete pointer;
+    pointer = nullptr;
   }
 
   VALUE rocksdb_iterator_seek_to_first(VALUE klass){
@@ -259,16 +271,26 @@ extern "C" {
   VALUE rocksdb_iterator_close(VALUE klass){
     rocksdb_iterator_pointer* pointer = get_iterator(&klass);
 
-    if(pointer == NULL) {
+    if(pointer == nullptr) {
       return Qfalse;
     }
 
-    if(pointer->it == NULL) {
+    if(pointer->db_pointer == nullptr) {
       return Qfalse;
     }
+
+    if (pointer->db_pointer->db == nullptr) {
+      return Qfalse;
+    }
+
+    if(pointer->it == nullptr) {
+      return Qfalse;
+    }
+
+    pointer->db_pointer = nullptr;
 
     delete pointer->it;
-    pointer->it = NULL;
+    pointer->it = nullptr;
 
     return Qtrue;
   }
@@ -276,16 +298,20 @@ extern "C" {
   rocksdb_iterator_pointer* get_iterator_for_read(VALUE *klass) {
     rocksdb_iterator_pointer* pointer = get_iterator(klass);
 
-    if (pointer == NULL) {
+    if (pointer == nullptr) {
       rb_raise(cRocksdb_iterator_closed, "iterator is not initialized");
     }
 
-    if (pointer->db_pointer->db == NULL) {
-      rb_raise(cRocksdb_database_closed, "database is closed");
+    if (pointer->it == nullptr) {
+      rb_raise(cRocksdb_iterator_closed, "iterator is closed");
     }
 
-    if (pointer->it == NULL) {
-      rb_raise(cRocksdb_iterator_closed, "iterator is closed");
+    if (pointer->db_pointer->db == nullptr) {
+      rb_raise(cRocksdb_database_closed, "database is not initialized");
+    }
+
+    if (pointer->db_pointer->db == nullptr) {
+      rb_raise(cRocksdb_database_closed, "database is closed");
     }
 
     return pointer;

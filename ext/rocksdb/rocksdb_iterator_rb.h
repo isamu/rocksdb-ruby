@@ -8,7 +8,7 @@ extern "C" {
   typedef VALUE (*METHOD)(...);
   rocksdb_iterator_pointer* get_iterator(VALUE *klass);
   rocksdb_iterator_pointer* get_iterator_for_read(VALUE *klass);
-  void free_iterator(rocksdb_iterator_pointer* pointer);
+  void iterator_free(rocksdb_iterator_pointer* pointer);
   VALUE rocksdb_iterator_alloc(VALUE klass);
 
   VALUE rocksdb_iterator_seek(VALUE klass, VALUE v_target);
