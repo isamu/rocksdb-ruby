@@ -91,7 +91,7 @@ extern "C" {
     rocksdb_pointer* db_pointer = get_db_for_write(&self);
 
     rocksdb::Slice key = SLICE_FROM_RB_VALUE(v_key);
-    rocksdb::Slice value = SLICE_FROM_RB_VALUE(v_value);
+    std::string value = STRING_FROM_RB_VALUE(v_value);
 
     rocksdb::Status status = db_pointer->db->Put(rocksdb::WriteOptions(), key, value);
 
