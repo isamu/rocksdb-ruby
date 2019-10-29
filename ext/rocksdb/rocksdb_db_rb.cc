@@ -135,20 +135,23 @@ extern "C" {
     rocksdb_pointer* db_pointer = get_db_for_read(&self);
 
     VALUE v_result = rb_hash_new();
+    VALUE v_key = Qnil;
+    VALUE v_value = Qnil;
 
     std::string options_str;
     std::unordered_map<std::string, std::string> options_map;
 
     GetStringFromDBOptions(&options_str, db_pointer->db->GetOptions());
-    rocksdb::StringToMap(options_str, &options_map);
-    GetStringFromColumnFamilyOptions(&options_str, db_pointer->db->GetOptions());
-    rocksdb::StringToMap(options_str, &options_map);
 
-    for (const auto pair : options_map) {
-      VALUE v_key = SLICE_TO_RB_STRING(pair.first);
-      VALUE v_value = SLICE_TO_RB_STRING(pair.second);
-      rb_hash_aset(v_result, v_key, v_value);
-    }
+    v_key = rb_str_new_cstr("DBOptions");
+    v_value = rb_str_new_cstr(options_str.c_str());
+    rb_hash_aset(v_result, v_key, v_value);
+
+    GetStringFromColumnFamilyOptions(&options_str, db_pointer->db->GetOptions());
+
+    v_key = rb_str_new_cstr("CFOptions");
+    v_value = rb_str_new_cstr(options_str.c_str());
+    rb_hash_aset(v_result, v_key, v_value);
 
     return v_result;
   }

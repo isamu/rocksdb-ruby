@@ -4,6 +4,8 @@ require "rocksdb"
 require 'fileutils'
 
 describe RocksDB do
+  warn "RocksDB library version: #{RocksDB::library_version}" rescue nil
+
   before do
     @rocksdb = RocksDB.open(temp_db_path)
   end
@@ -202,6 +204,9 @@ describe RocksDB do
     expect(@rocksdb.property("rocksdb.estimate-num-keys")).to eq("1")
   end
 
+  it "should get library_version" do
+    expect(RocksDB.library_version).to match(/\d+\.\d+\.\d+/)
+  end
 
   it 'should use multiple db' do
     @rocksdb2 = RocksDB::DB.new("/tmp/file2")

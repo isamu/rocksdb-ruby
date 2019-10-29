@@ -52,6 +52,7 @@ extern "C" {
     return Qtrue;
   }
 
+#if ROCKSDB_VERSION >= 41100
   VALUE rocksdb_iterator_seek_for_prev(VALUE klass, VALUE v_target){
     rocksdb_iterator_pointer* pointer = get_iterator_for_read(&klass);
 
@@ -61,6 +62,7 @@ extern "C" {
 
     return Qtrue;
   }
+#endif
 
   VALUE rocksdb_iterator_valid(VALUE klass){
     rocksdb_iterator_pointer* pointer = get_iterator(&klass);
@@ -306,7 +308,7 @@ extern "C" {
       rb_raise(cRocksdb_iterator_closed, "iterator is closed");
     }
 
-    if (pointer->db_pointer->db == nullptr) {
+    if (pointer->db_pointer == nullptr) {
       rb_raise(cRocksdb_database_closed, "database is not initialized");
     }
 

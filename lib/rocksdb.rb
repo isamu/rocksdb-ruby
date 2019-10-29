@@ -51,6 +51,16 @@ module RocksDB
       end
     end
 
+    def options
+      options_strings.each_with_object({}) do |(option_group, value), result|
+        pairs = value.split(/;\s*/)
+        pairs.map do |pair|
+          key, value = pair.split("=")
+          result[key] = value
+        end
+      end
+    end
+
     alias_method :includes?, :exists?
     alias_method :contains?, :exists?
     alias_method :member?, :exists?

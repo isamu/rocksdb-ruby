@@ -24,6 +24,8 @@ extern "C" {
     VALUE rb_cStandardError = rb_const_get(rb_cObject, rb_intern("StandardError"));
 
     cRocksdb = rb_define_module("RocksDB");
+    rb_define_singleton_method(cRocksdb, "library_version", (METHOD)rocksdb_version, 0);
+
     cRocksdb_error = rb_define_class_under(cRocksdb, "Error", rb_cStandardError);
 
     cRocksdb_readonly = rb_define_class_under(cRocksdb, "ReadOnly", cRocksdb_error);
@@ -36,7 +38,7 @@ extern "C" {
 
     rb_define_private_method(cRocksdb_db, "__initialize", (METHOD)rocksdb_db_init, 3);
     rb_define_method(cRocksdb_db, "property", (METHOD)rocksdb_db_property, 1);
-    rb_define_method(cRocksdb_db, "options", (METHOD)rocksdb_db_options, 0);
+    rb_define_method(cRocksdb_db, "options_strings", (METHOD)rocksdb_db_options, 0);
     rb_define_method(cRocksdb_db, "put", (METHOD)rocksdb_db_put, 2);
     rb_define_method(cRocksdb_db, "write", (METHOD)rocksdb_db_write, 1);
     rb_define_method(cRocksdb_db, "get_one", (METHOD)rocksdb_db_get, 1);
@@ -63,7 +65,9 @@ extern "C" {
     rb_define_method(cRocksdb_iterator, "seek_to_first", (METHOD)rocksdb_iterator_seek_to_first, 0);
     rb_define_method(cRocksdb_iterator, "seek_to_last", (METHOD)rocksdb_iterator_seek_to_last, 0);
     rb_define_method(cRocksdb_iterator, "seek", (METHOD)rocksdb_iterator_seek, 1);
+#if ROCKSDB_VERSION >= 41100
     rb_define_method(cRocksdb_iterator, "seek_for_previous", (METHOD)rocksdb_iterator_seek_for_prev, 1);
+#endif
     rb_define_method(cRocksdb_iterator, "next", (METHOD)rocksdb_iterator_next, 0);
     rb_define_method(cRocksdb_iterator, "previous", (METHOD)rocksdb_iterator_prev, 0);
 
@@ -85,6 +89,11 @@ extern "C" {
     cRocksdb_status = rb_define_class_under(cRocksdb, "Status", rb_cObject);
     cRocksdb_read_options = rb_define_class_under(cRocksdb, "ReadOptions", rb_cObject);
     cRocksdb_write_options = rb_define_class_under(cRocksdb, "WriteOptions", rb_cObject);
+  }
 
+  VALUE rocksdb_version(VALUE self){
+    VALUE v_version;
+    v_version = rb_sprintf("%i.%i.%i", ROCKSDB_MAJOR, ROCKSDB_MINOR, ROCKSDB_PATCH);
+    return v_version;
   }
 }

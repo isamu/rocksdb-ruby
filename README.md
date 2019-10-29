@@ -11,7 +11,7 @@ This gem contains Ruby bindings so that you can use it from your Ruby process.
 
 ## Installation
 
-First install rocksdb.
+First, install rocksdb: https://github.com/facebook/rocksdb/blob/master/INSTALL.md
 
 Add this line to your application's Gemfile:
 
@@ -30,6 +30,12 @@ Or install it yourself as:
 ```sh
 $ gem install rocksdb-ruby
 ```
+
+`rocksdb-ruby` is tested against Ruby 2.4, 2.5 and 2.6 on Linux and macOS platforms. However, it might work on other platforms.
+
+`rocksdb-ruby` supports rocksb 4.5.1 and later. It is tested against master branch with all supported ruby version. It is also tested against few specific version, available in popular distributions. Check `.travis.yml` for details.
+
+JRuby, TruffleRuby and Rubinius are not supported at the moment.
 
 ## Usage
 
@@ -399,7 +405,6 @@ You can get RocksDB Iterator with `to_iterator` method to iterate over your data
 Supported methods:
 
 * `seek(key)` seeks to closest key to given prefix at beginning
-* `seek_for_previous(key)`seeks to closest key to given prefix at end
 * `seek_to_first` seeks to the first key
 * `seek_to_last` seeks to the last key
 * `next` seeks to the next key
@@ -408,6 +413,10 @@ Supported methods:
 * `close` closes iterator
 * `key` returns current key
 * `value` returns current value
+
+Methods supported by rocksdb 4.11 and later:
+
+* `seek_for_previous(key)`seeks to closest key to given prefix at end
 
 ## Upgrade
 

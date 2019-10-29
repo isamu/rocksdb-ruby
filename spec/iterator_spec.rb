@@ -267,7 +267,9 @@ describe RocksDB::Iterator do
     end
   end
 
-  context "previous" do
+  context "seek_for_previous",
+    skip: !RocksDB::Iterator.instance_methods.include?(:seek_for_previous) do
+
     it 'should seek to record when target record exists' do
       @iterator.seek_for_previous "test1:0004"
 
@@ -318,6 +320,7 @@ describe RocksDB::Iterator do
   end
 
   after do
+    @iterator.close
     @rocksdb.close
   end
 end
