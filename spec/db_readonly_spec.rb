@@ -4,26 +4,54 @@ require "rocksdb"
 
 describe RocksDB do
   before do
-    @rocksdb = RocksDB::DB.new "/tmp/file2"
-    @rocksdb.put("test:multi_db", "1")
+    @rocksdb = RocksDB.open temp_db_path
+    @rocksdb.put("test", "value")
     @rocksdb.close
-    
-    @rocksdb2 = RocksDB::DB.new("/tmp/file2", {:readonly => true})
   end
 
-  it 'should get data' do
-    expect{@rocksdb2.put("test:multi_db", "10")}.to raise_error(RuntimeError)
-    expect{@rocksdb2.delete("test:multi_db")}.to raise_error(RuntimeError)
-    expect(@rocksdb2.get("test:multi_db")).to eq "1"
-    expect(@rocksdb2.is_readonly?).to eq true
-    
-    batch = RocksDB::Batch.new
-    batch.delete("test:batch1")
-    batch.put("test:batch2", "b")
-    expect{@rocksdb2.write(batch)}.to raise_error(RuntimeError)
+  context "when writable" do
+    before do
+      @rocksdb = RocksDB.open temp_db_path
+    end
+
+    it 'writable? is true' do
+      expect(@rocksdb.writable?).to eq true
+    end
+
+    it 'can write' do
+      expect{@rocksdb.put("newtest", "value")}
+        .not_to raise_error
+    end
+
+    it 'can read' do
+      expect(@rocksdb.get("test")).to eq "value"
+    end
+
+    after do
+      @rocksdb.close
+    end
   end
 
-  after do
-    @rocksdb2.close
+  context "when not writable" do
+    before do
+      @rocksdb = RocksDB.open_readonly temp_db_path
+    end
+
+    it 'writable? is false' do
+      expect(@rocksdb.writable?).to eq false
+    end
+
+    it "can't write" do
+      expect{@rocksdb.put("newtest", "value")}
+        .to raise_error(RocksDB::ReadOnly)
+    end
+
+    it 'can read' do
+      expect(@rocksdb.get("test")).to eq "value"
+    end
+
+    after do
+      @rocksdb.close
+    end
   end
 end

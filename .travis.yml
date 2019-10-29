@@ -1,22 +1,60 @@
 language: ruby
+script: bundle exec rake spec
+
 rvm:
-  - 2.4.0
-script: bundle exec rake spec || ( cat ext/rocksdb/mkmf.log && /bin/false )
+  - 2.4
+  - 2.5
+  - 2.6
+
+os:
+  - linux
+  - osx
+
+# We can use this matrix to pick supported versions
+# https://repology.org/project/rocksdb/versions
+jobs:
+  include:
+    - os: linux
+      env: ROCKSDB_VERSION=6.3.6
+    - os: linux
+      env: ROCKSDB_VERSION=5.17.2
+    - os: linux
+      env: ROCKSDB_VERSION=4.5.1
+    - os: osx
+      env: ROCKSDB_VERSION=5.18.3 ROCKSDB_VERSION_COMMIT=d38e4b445ea1525fba69b1d7b88dc63e9faaa21b
+    - os: osx
+      env: ROCKSDB_VERSION=6.1.2 ROCKSDB_VERSION_COMMIT=6e35266c1f6b7bab9ed4371e5cf9f1cfca0566b7
+
+cache:
+  ccache: true
+  bundler: true
+  directories:
+    - /home/travis/.ccache
+
+addons:
+  apt:
+    sources:
+      - sourceline: 'ppa:ubuntu-toolchain-r/test'
+    packages:
+      - gdb
+      - gcc-8
+      - g++-8
+      - libbz2-dev
+      - zlib1g-dev
+      - libgflags-dev
+      - libsnappy-dev
+
+before_script:
+  # enable core dumps
+  - ulimit -c unlimited -S
 
 before_install:
-  - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
-  - sudo apt-get update -qq
-  - sudo apt-get install gcc-6 g++-6 libsnappy-dev zlib1g-dev libbz2-dev -qq
-  - export CXX="g++-6" CC="gcc-6"
-  - sudo ln -s /usr/bin/gcc-6 /usr/local/bin/gcc
-  - sudo ln -s /usr/bin/g++-6 /usr/local/bin/g++
   - gem install bundler
 
 install:
-  - git clone https://github.com/facebook/rocksdb.git /tmp/rocksdb
-  - pushd /tmp/rocksdb
-  - make clean
-  - make shared_lib
-  - popd
-  - export ROCKSDB_RUBY_BUILD_PARAMS="--with-rocksdb-dir=/tmp/rocksdb --with-rocksdb-lib=/tmp/rocksdb"
-  - bundle install
+  - export ROCKSDB_FOLDER=/tmp/rocksdb/
+  - export ROCKSDB_RUBY_BUILD_PARAMS="--with-rocksdb-dir=$ROCKSDB_FOLDER --with-rocksdb-lib=$ROCKSDB_FOLDER"
+  - ./.travis/install.sh
+
+after_failure:
+ - ./.travis/after_failure.sh

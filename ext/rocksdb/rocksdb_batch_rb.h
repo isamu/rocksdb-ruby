@@ -4,7 +4,7 @@
 extern "C" {
 
 #include <ruby.h>
-  
+
   typedef VALUE (*METHOD)(...);
 
   VALUE rocksdb_write_batch_init();

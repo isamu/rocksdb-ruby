@@ -6,35 +6,36 @@
 extern "C" {
 #include <ruby.h>
 
-  VALUE rocksdb_db_init(int argc, VALUE* argv, VALUE self) {
-    VALUE v_db_file_name;
-    VALUE v_options;
+  VALUE rocksdb_db_init(VALUE self, VALUE v_db_path, VALUE v_readonly, VALUE v_db_options) {
     rocksdb_pointer* db_pointer;
     rocksdb::DB* db;
     rocksdb::Options options;
     rocksdb::Status status;
+
     std::string db_file_name;
-    bool readonly;
-    
+    std::string db_string_options;
+
     Data_Get_Struct(self, rocksdb_pointer, db_pointer);
-    rb_scan_args(argc, argv, "11", &v_db_file_name, &v_options);
 
-    Check_Type(v_db_file_name, T_STRING);
-    db_file_name = std::string((char*)RSTRING_PTR(v_db_file_name));
+    // Initialize db_pointer
+    db_pointer->db = nullptr;
+    db_pointer->readonly = false;
 
-    readonly = false;
-    if (TYPE(v_options) == T_HASH) {
-      VALUE v = rb_hash_aref(v_options, ID2SYM(rb_intern("readonly")));
-      if(v == Qtrue){
-        readonly = true;
-      }
-      set_opt(&options, &v_options);
-    }
-    //std::cout << options.max_bytes_for_level_base << "\n";
-    //std::cout << options.max_grandparent_overlap_factor << "\n";
-    //std::cout << options.delete_obsolete_files_period_micros << "\n";
+    bool readonly = RTEST(v_readonly);
 
+    db_file_name = STRING_FROM_RB_VALUE(v_db_path);
+    db_string_options = STRING_FROM_RB_VALUE(v_db_options);
+
+    // Set option before parsing string, so create_if_missing could be
+    // overwriten in option string
     options.create_if_missing = true;
+    status = GetOptionsFromString(options, db_string_options, &options);
+
+    if(!status.ok()) {
+      raise_status_error(&status);
+      return Qnil;
+    }
+
     if(readonly){
       status = rocksdb::DB::OpenForReadOnly(options, db_file_name, &db);
     }else{
@@ -43,37 +44,13 @@ extern "C" {
 
     db_pointer->db = db;
     db_pointer->readonly = readonly;
-    
-    return status.ok() ? Qtrue : Qfalse;
-  }
-  VALUE rocksdb_db_init2(int argc, VALUE* argv, VALUE self) {
-    rocksdb_pointer* db_pointer;
-    Data_Get_Struct(self, rocksdb_pointer, db_pointer);
-    db_pointer->db = NULL;
-    db_pointer->readonly = true;
-    Data_Get_Struct(self, rocksdb_pointer, db_pointer);
+
+    if(!status.ok()) {
+      raise_status_error(&status);
+      return Qnil;
+    }
 
     return Qtrue;
-  }
-
-  void set_opt_unit_val(uint64_t* opt, char* name, VALUE *v_options){
-
-    VALUE v2 = rb_hash_aref(*v_options, ID2SYM(rb_intern(name)));
-    if(RB_TYPE_P(v2, T_FIXNUM)){
-      *opt = NUM2INT(v2);
-    }
-  }
-  void set_opt_int_val(int* opt, char* name, VALUE *v_options){
-    VALUE v2 = rb_hash_aref(*v_options, ID2SYM(rb_intern(name)));
-    if(RB_TYPE_P(v2, T_FIXNUM)){
-      *opt = NUM2INT(v2);
-    }
-  }
-
-  void set_opt(rocksdb::Options* options, VALUE *v_options){
-    set_opt_unit_val(&options->max_bytes_for_level_base, (char *) "max_bytes_for_level_base", v_options);
-    set_opt_unit_val(&options->delete_obsolete_files_period_micros, (char *) "delete_obsolete_files_period_micros", v_options);
-    set_opt_int_val(&options->max_open_files, (char *) "max_open_files", v_options);
   }
 
   VALUE db_alloc(VALUE klass){
@@ -81,277 +58,212 @@ extern "C" {
     return Data_Wrap_Struct(klass, 0, db_free, db_pointer);
   }
 
+  void db_free(rocksdb_pointer* db_pointer){
+    if(db_pointer == nullptr) {
+      return;
+    }
+
+    if(db_pointer->db != nullptr){
+      delete db_pointer->db;
+      db_pointer->db = nullptr;
+    }
+
+    delete db_pointer;
+    db_pointer = nullptr;
+  }
+
+  VALUE rocksdb_db_close(VALUE self){
+    rocksdb_pointer* db_pointer = get_db(&self);
+
+    if(db_pointer == nullptr) {
+      return Qfalse;
+    }
+
+    if(db_pointer->db != nullptr){
+      delete db_pointer->db;
+      db_pointer->db = nullptr;
+    }
+
+    return Qtrue;
+  }
+
   VALUE rocksdb_db_put(VALUE self, VALUE v_key, VALUE v_value) {
-    Check_Type(v_key, T_STRING);
-    Check_Type(v_value, T_STRING);
+    rocksdb_pointer* db_pointer = get_db_for_write(&self);
 
-    rocksdb_pointer* db_pointer;
-    Data_Get_Struct(self, rocksdb_pointer, db_pointer);
-    
-    std::string key = std::string((char*)RSTRING_PTR(v_key), RSTRING_LEN(v_key));
-    std::string value = std::string((char*)RSTRING_PTR(v_value), RSTRING_LEN(v_value));
+    rocksdb::Slice key = SLICE_FROM_RB_VALUE(v_key);
+    std::string value = STRING_FROM_RB_VALUE(v_value);
 
-    if (db_pointer->db == NULL) {
-      rb_raise(rb_eRuntimeError, "db not open");
-    }
-    if (db_pointer->readonly) {
-      rb_raise(rb_eRuntimeError, "readonly");
-    }
     rocksdb::Status status = db_pointer->db->Put(rocksdb::WriteOptions(), key, value);
-    
-    return status.ok() ? Qtrue : Qfalse;
+
+    if(!status.ok()) {
+      raise_status_error(&status);
+      return Qnil;
+    }
+
+    return Qtrue;
   }
 
   VALUE rocksdb_db_write(VALUE self, VALUE v_write){
-    rocksdb_pointer* db_pointer;
-    Data_Get_Struct(self, rocksdb_pointer, db_pointer);
+    rocksdb_pointer* db_pointer = get_db_for_write(&self);
 
     rocksdb::WriteBatch *batch;
     Data_Get_Struct(v_write, rocksdb::WriteBatch, batch);
 
-    if (db_pointer->db == NULL) {
-      rb_raise(rb_eRuntimeError, "db not open");
-    }
-    if (db_pointer->readonly) {
-      rb_raise(rb_eRuntimeError, "readonly");
-    }
     rocksdb::Status status = db_pointer->db->Write(rocksdb::WriteOptions(), batch);
-    return status.ok() ? Qtrue : Qfalse;
+
+    if(!status.ok()) {
+      raise_status_error(&status);
+      return Qnil;
+    }
+
+    return Qtrue;
   }
 
   VALUE rocksdb_db_property(VALUE self, VALUE v_key){
-    Check_Type(v_key, T_STRING);
+    rocksdb_pointer* db_pointer = get_db_for_read(&self);
 
-    rocksdb_pointer* db_pointer;
-    Data_Get_Struct(self, rocksdb_pointer, db_pointer);
+    rocksdb::Slice key = SLICE_FROM_RB_VALUE(v_key);
+    std::string value = std::string();
 
-    std::string key = std::string((char*)RSTRING_PTR(v_key), RSTRING_LEN(v_key));
-    std::string value;
-    if (db_pointer->db == NULL) {
-      rb_raise(rb_eRuntimeError, "db not open");
-    }
+    bool result_ok = db_pointer->db->GetProperty(key, &value);
 
-    bool status = db_pointer->db->GetProperty(key, &value);
-    if(!status) return Qnil;
-    return rb_enc_str_new(value.data(), value.size(), rb_utf8_encoding());
+    if(!result_ok) return Qnil;
+    return SLICE_TO_RB_STRING(value);
+  }
+
+  VALUE rocksdb_db_options(VALUE self){
+    rocksdb_pointer* db_pointer = get_db_for_read(&self);
+
+    VALUE v_result = rb_hash_new();
+    VALUE v_key = Qnil;
+    VALUE v_value = Qnil;
+
+    std::string options_str;
+    std::unordered_map<std::string, std::string> options_map;
+
+    GetStringFromDBOptions(&options_str, db_pointer->db->GetOptions());
+
+    v_key = rb_str_new_cstr("DBOptions");
+    v_value = rb_str_new_cstr(options_str.c_str());
+    rb_hash_aset(v_result, v_key, v_value);
+
+    GetStringFromColumnFamilyOptions(&options_str, db_pointer->db->GetOptions());
+
+    v_key = rb_str_new_cstr("CFOptions");
+    v_value = rb_str_new_cstr(options_str.c_str());
+    rb_hash_aset(v_result, v_key, v_value);
+
+    return v_result;
   }
 
   VALUE rocksdb_db_get(VALUE self, VALUE v_key){
-    Check_Type(v_key, T_STRING);
+    rocksdb_pointer* db_pointer = get_db_for_read(&self);
 
-    rocksdb_pointer* db_pointer;
-    Data_Get_Struct(self, rocksdb_pointer, db_pointer);
-    std::string key = std::string((char*)RSTRING_PTR(v_key), RSTRING_LEN(v_key));
+    rocksdb::Slice key = SLICE_FROM_RB_VALUE(v_key);
     std::string value;
-    if (db_pointer->db == NULL) {
-      rb_raise(rb_eRuntimeError, "db not open");
+
+    rocksdb::Status status = db_pointer->db->Get(rocksdb::ReadOptions(), key, &value);
+
+    if(status.IsNotFound()) {
+      return Qnil;
+    } else if (!status.ok()) {
+      raise_status_error(&status);
+      return Qnil;
     }
-    rocksdb::Status status = db_pointer->db->Get(rocksdb::ReadOptions(), key, &value);    
 
-    return (status.IsNotFound()) ? Qnil : rb_enc_str_new(value.data(), value.size(), rb_utf8_encoding());
-
+    return SLICE_TO_RB_STRING(value);
   }
-
 
   VALUE rocksdb_db_multi_get(VALUE self, VALUE v_array){
     Check_Type(v_array, T_ARRAY);
 
-    rocksdb_pointer* db_pointer;
-    Data_Get_Struct(self, rocksdb_pointer, db_pointer);
+    rocksdb_pointer* db_pointer =  get_db_for_read(&self);
 
     long i;
     long length = RARRAY_LEN(v_array);
     std::vector<std::string> values(length);
     std::vector<rocksdb::Slice> keys(length);
-    std::vector<rocksdb::Status> status;
+    std::vector<rocksdb::Status> statuses;
 
     for(i=0; i < length; i++){
-      VALUE op = rb_ary_entry(v_array, i);
-      keys[i] = rocksdb::Slice((char*)RSTRING_PTR(op), RSTRING_LEN(op));
+      VALUE v_element = rb_ary_entry(v_array, i);
+      keys[i] = SLICE_FROM_RB_VALUE(v_element);
     }
 
-    if (db_pointer->db == NULL) {
-      rb_raise(rb_eRuntimeError, "db not open");
-    }
-    status = db_pointer->db->MultiGet(rocksdb::ReadOptions(),keys,&values);
+    statuses = db_pointer->db->MultiGet(rocksdb::ReadOptions(), keys, &values);
+
     for(i=0; i < length; i++){
-      rb_ary_store(v_array, i, rb_enc_str_new(values[i].data(), values[i].size(), rb_utf8_encoding()));
+      rocksdb::Status status = statuses[i];
+
+      if(status.IsNotFound()) {
+        rb_ary_store(v_array, i, Qnil);
+      } else if(status.ok()) {
+        rb_ary_store(v_array, i, SLICE_TO_RB_STRING(values[i]));
+      } else {
+        rb_ary_store(v_array, i, Qfalse);
+      }
     }
+
     return v_array;
   }
-  
-  VALUE rocksdb_db_delete(VALUE self, VALUE v_key){
-    Check_Type(v_key, T_STRING);
-    
-    rocksdb_pointer* db_pointer;
-    Data_Get_Struct(self, rocksdb_pointer, db_pointer);
 
-    std::string key = std::string((char*)RSTRING_PTR(v_key), RSTRING_LEN(v_key));
-    if (db_pointer->db == NULL) {
-      rb_raise(rb_eRuntimeError, "db not open");
-    }
-    if (db_pointer->readonly) {
-      rb_raise(rb_eRuntimeError, "readonly");
-    }
+  VALUE rocksdb_db_delete(VALUE self, VALUE v_key){
+    rocksdb_pointer* db_pointer = get_db_for_write(&self);
+
+    rocksdb::Slice key = SLICE_FROM_RB_VALUE(v_key);
     rocksdb::Status status = db_pointer->db->Delete(rocksdb::WriteOptions(), key);
-    
-    return status.ok() ? Qtrue : Qfalse;
+
+    // https://github.com/facebook/rocksdb/issues/4975
+    if (status.ok()) {
+      return Qtrue;
+    } else {
+      raise_status_error(&status);
+      return Qfalse;
+    }
   }
 
   VALUE rocksdb_db_exists(VALUE self, VALUE v_key){
-    Check_Type(v_key, T_STRING);
+    rocksdb_pointer* db_pointer = get_db_for_read(&self);
 
-    rocksdb_pointer* db_pointer;
-    Data_Get_Struct(self, rocksdb_pointer, db_pointer);
-
-    std::string key = std::string((char*)RSTRING_PTR(v_key), RSTRING_LEN(v_key));
+    rocksdb::Slice key = SLICE_FROM_RB_VALUE(v_key);
     std::string value = std::string();
-    
-    if (db_pointer->db == NULL) {
-      rb_raise(rb_eRuntimeError, "db not open");
-    }
+
     return db_pointer->db->KeyMayExist(rocksdb::ReadOptions(), key, &value) ? Qtrue : Qfalse;
-  }  
-
-  VALUE rocksdb_db_close(VALUE self){
-    rocksdb_pointer* db_pointer;
-    Data_Get_Struct(self, rocksdb_pointer, db_pointer);
-
-    if(db_pointer->db != NULL){
-      delete db_pointer->db;
-      db_pointer->db = NULL;
-    }
-    return Qnil;
   }
 
-  void db_free(rocksdb_pointer* db_pointer){
-    if(db_pointer->db != NULL){
-      delete db_pointer->db;
-      db_pointer->db = NULL;
-    }
-    delete db_pointer;
-  }
 
-  VALUE rocksdb_db_new_iterator(VALUE self){
-    rocksdb_pointer* db_pointer;
+  VALUE rocksdb_db_to_iterator(VALUE self){
+    rocksdb_pointer* db_pointer = get_db_for_read(&self);
     rocksdb_iterator_pointer* rocksdb_it;
 
-    VALUE klass;
-    Data_Get_Struct(self, rocksdb_pointer, db_pointer);
-
-    if (db_pointer->db == NULL) {
-      rb_raise(rb_eRuntimeError, "db not open");
-    }
     rocksdb::Iterator* it = db_pointer->db->NewIterator(rocksdb::ReadOptions());
 
+    VALUE klass;
     klass = rb_class_new_instance(0, NULL, cRocksdb_iterator);
 
     Data_Get_Struct(klass, rocksdb_iterator_pointer , rocksdb_it);
     rocksdb_it->it = it;
+    rocksdb_it->db_pointer = db_pointer;
+
     return klass;
-  }
-
-
-  VALUE rocksdb_db_each(VALUE self){
-    if(!rb_block_given_p()){
-      return rocksdb_db_new_iterator(self);
-    }
-    
-    rocksdb_pointer* db_pointer;
-    Data_Get_Struct(self, rocksdb_pointer, db_pointer);
-    if (db_pointer->db == NULL) {
-      rb_raise(rb_eRuntimeError, "db not open");
-    }
-    rocksdb::Iterator* it = db_pointer->db->NewIterator(rocksdb::ReadOptions());
-
-    for (it->SeekToFirst(); it->Valid(); it->Next()) {
-      rb_yield(rb_enc_str_new(it->value().data(), it->value().size(), rb_utf8_encoding()));
-    }
-    
-    delete it;
-    return self;
-  }
-
-  VALUE rocksdb_db_each_index(VALUE self){
-    if(!rb_block_given_p()){
-      return rocksdb_db_new_iterator(self);
-    }
-    
-    rocksdb_pointer* db_pointer;
-    Data_Get_Struct(self, rocksdb_pointer, db_pointer);
-    if (db_pointer->db == NULL) {
-      rb_raise(rb_eRuntimeError, "db not open");
-    }
-    rocksdb::Iterator* it = db_pointer->db->NewIterator(rocksdb::ReadOptions());
-
-    for (it->SeekToFirst(); it->Valid(); it->Next()) {
-      rb_yield(rb_enc_str_new(it->key().data(), it->key().size(), rb_utf8_encoding()));
-    }
-    
-    delete it;
-    return self;
-  }
-
-  VALUE rocksdb_db_each_with_index(VALUE self){
-    if(!rb_block_given_p()){
-      return rocksdb_db_new_iterator(self);
-    }
-    
-    rocksdb_pointer* db_pointer;
-    Data_Get_Struct(self, rocksdb_pointer, db_pointer);
-    if (db_pointer->db == NULL) {
-      rb_raise(rb_eRuntimeError, "db not open");
-    }
-    rocksdb::Iterator* it = db_pointer->db->NewIterator(rocksdb::ReadOptions());
-
-    for (it->SeekToFirst(); it->Valid(); it->Next()) {
-      VALUE a = rb_enc_str_new(it->key().data(), it->key().size(), rb_utf8_encoding());
-      VALUE b = rb_enc_str_new(it->value().data(), it->value().size(), rb_utf8_encoding());
-      rb_yield_values(2, a, b);
-    }
-    
-    delete it;
-    return self;
-  }
-
-  
-
-  VALUE rocksdb_db_reverse_each(VALUE self){
-    rocksdb_pointer* db_pointer;
-    Data_Get_Struct(self, rocksdb_pointer, db_pointer);
-    if (db_pointer->db == NULL) {
-      rb_raise(rb_eRuntimeError, "db not open");
-    }
-    rocksdb::Iterator* it = db_pointer->db->NewIterator(rocksdb::ReadOptions());
-
-    for (it->SeekToLast(); it->Valid(); it->Prev()) {
-      rb_yield(rb_enc_str_new(it->value().data(), it->value().size(), rb_utf8_encoding()));
-    }
-    
-    delete it;
-    return self;
   }
 
   VALUE rocksdb_db_debug(VALUE self){
     return Qnil;
   }
-  VALUE rocksdb_db_is_readonly(VALUE self){
-    rocksdb_pointer* db_pointer;
-    Data_Get_Struct(self, rocksdb_pointer, db_pointer);
-    if (db_pointer->readonly) {
-      return Qtrue;
-    }
-    if (!db_pointer->readonly) {
-      return Qfalse;
-    }
-    return Qnil;
+
+  VALUE rocksdb_db_is_writable(VALUE self){
+    rocksdb_pointer* db_pointer = get_db(&self);
+
+    return (db_pointer->readonly) ? Qfalse : Qtrue;
   }
+
   VALUE rocksdb_db_is_open(VALUE self){
-    rocksdb_pointer* db_pointer;
-    Data_Get_Struct(self, rocksdb_pointer, db_pointer);
+    rocksdb_pointer* db_pointer = get_db(&self);
+
     return (db_pointer->db == NULL) ? Qfalse : Qtrue;
   }
-  
+
   VALUE rocksdb_db_compact(int argc, VALUE* argv, VALUE self) {
     VALUE v_from, v_to;
     rocksdb::Slice from, to;
@@ -359,21 +271,60 @@ extern "C" {
     rb_scan_args(argc, argv, "02", &v_from, &v_to);
 
     if(!NIL_P(v_from)) {
-      Check_Type(v_from, T_STRING);
-      from = rocksdb::Slice((char*)RSTRING_PTR(v_from), RSTRING_LEN(v_from));
+      from = SLICE_FROM_RB_VALUE(v_from);
     }
 
     if(!NIL_P(v_to)) {
-      Check_Type(v_to, T_STRING);
-      to = rocksdb::Slice((char*)RSTRING_PTR(v_to), RSTRING_LEN(v_to));
+      to = SLICE_FROM_RB_VALUE(v_to);
     }
 
-    rocksdb_pointer* db_pointer;
-    Data_Get_Struct(self, rocksdb_pointer, db_pointer);
-    if (db_pointer->db == NULL) {
-      rb_raise(rb_eRuntimeError, "db not open");
-    }
+    rocksdb_pointer* db_pointer = get_db_for_read(&self);
     rocksdb::Status status = db_pointer->db->CompactRange(rocksdb::CompactRangeOptions(), &from, &to);
+
     return status.ok() ? Qtrue : Qfalse;
+  }
+
+  VALUE raise_status_error(rocksdb::Status *status) {
+    char const *error_text = status->ToString().c_str();
+    rb_raise(cRocksdb_status_error, "%s", error_text);
+
+    return Qnil;
+  }
+
+  rocksdb_pointer* get_db(VALUE *self) {
+    rocksdb_pointer *db_pointer;
+    Data_Get_Struct(*self, rocksdb_pointer, db_pointer);
+
+    return db_pointer;
+  }
+
+  rocksdb_pointer* get_db_for_read(VALUE *self) {
+    rocksdb_pointer *db_pointer = get_db(self);
+
+    check_is_db_ready(db_pointer);
+
+    return db_pointer;
+  }
+
+  rocksdb_pointer* get_db_for_write(VALUE *self) {
+    rocksdb_pointer *db_pointer = get_db(self);
+
+    check_is_db_ready(db_pointer);
+
+    if (db_pointer->readonly) {
+      rb_raise(cRocksdb_readonly, "database is read-only");
+    }
+
+    return db_pointer;
+  }
+
+  void check_is_db_ready(rocksdb_pointer *db_pointer) {
+    if (db_pointer == NULL) {
+      rb_raise(cRocksdb_database_closed, "database is not initialized");
+    }
+
+    if (db_pointer->db == NULL) {
+      rb_raise(cRocksdb_database_closed, "database is not opened");
+    }
   }
 }
