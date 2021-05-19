@@ -1,9 +1,9 @@
 #include "rocksdb/db.h"
 #include "rocksdb/write_batch.h"
 #include "rocksdb/utilities/convenience.h"
+#include <ruby.h>
 
 extern "C" {
-#include <ruby.h>
   VALUE rocksdb_db_init(VALUE self, VALUE v_db_path, VALUE v_readonly, VALUE v_db_options);
   VALUE db_alloc(VALUE klass);
 
