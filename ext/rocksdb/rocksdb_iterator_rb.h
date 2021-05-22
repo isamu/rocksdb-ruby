@@ -1,9 +1,9 @@
 #include "rocksdb/db.h"
 #include "rocksdb/write_batch.h"
+#include <ruby.h>
 
 extern "C" {
 
-#include <ruby.h>
 
   typedef VALUE (*METHOD)(...);
   rocksdb_iterator_pointer* get_iterator(VALUE *klass);

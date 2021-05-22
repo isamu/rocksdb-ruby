@@ -2,9 +2,9 @@
 #include "rocksdb_db_rb.h"
 #include "ruby/encoding.h"
 #include <iostream>
+#include <ruby.h>
 
 extern "C" {
-#include <ruby.h>
 
   VALUE rocksdb_db_init(VALUE self, VALUE v_db_path, VALUE v_readonly, VALUE v_db_options) {
     rocksdb_pointer* db_pointer;

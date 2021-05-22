@@ -3,9 +3,9 @@
 #include "rocksdb_iterator_rb.h"
 #include "ruby/encoding.h"
 #include <iostream>
+#include <ruby.h>
 
 extern "C" {
-#include <ruby.h>
 #define RB_CLOSE_ITERATOR(klass) (rb_funcall(klass, rb_intern("close"), 0))
 #define RB_TO_ENUM(klass, method_name) (rb_funcall(klass, rb_intern("to_enum"), 1, ID2SYM(rb_intern(method_name))))
 #define RB_TO_ENUM_ARGS(klass, method_name, argc, args...) (rb_funcall(klass, rb_intern("to_enum"), argc + 1, ID2SYM(rb_intern(method_name)), args))

@@ -1,7 +1,8 @@
 #include "rocksdb_batch_rb.h"
 
-extern "C" {
 #include <ruby.h>
+
+extern "C" {
 
   VALUE batch_alloc(VALUE klass){
     rocksdb::WriteBatch *batch = ALLOC(rocksdb::WriteBatch);

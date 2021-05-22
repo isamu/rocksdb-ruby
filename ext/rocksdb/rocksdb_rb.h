@@ -16,8 +16,8 @@
                        + ROCKSDB_MINOR * 100 \
                        + ROCKSDB_PATCH)
 
-extern "C" {
 #include <ruby.h>
+extern "C" {
 
 #define SLICE_TO_RB_STRING(slice) (rb_enc_str_new(slice.data(), slice.size(), rb_utf8_encoding()))
 #define SLICE_FROM_RB_VALUE(entity) ({ VALUE _string = StringValue((entity)); rocksdb::Slice(RSTRING_PTR(_string), RSTRING_LEN(_string)); })
