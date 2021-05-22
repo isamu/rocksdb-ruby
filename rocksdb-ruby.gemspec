@@ -20,7 +20,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["ext", "lib"]
 
   spec.add_development_dependency "bundler", "~> 2.0"
-  spec.add_development_dependency "rake"
-  spec.add_development_dependency "rspec"
-  spec.add_development_dependency "rspec-core"
+  spec.add_development_dependency "rake", "~> 12.0"
+  spec.add_development_dependency "rspec", "~> 3.0"
+  spec.add_development_dependency "rspec-core", "~> 3.0"
 end
