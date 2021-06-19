@@ -168,6 +168,10 @@ You can check, if key exists:
     # => false
 ```
 
+`exists?` method returns result of KeyMayExist. 
+
+If you need more infomation about KeyMayExist,  see [rockdb source comments](https://github.com/facebook/rocksdb/blob/689b13e6396011317db4f04a88e72323aead32bd/include/rocksdb/db.h#L646-L662).
+
 And you can delete keys, when not needed:
 
 ```ruby
