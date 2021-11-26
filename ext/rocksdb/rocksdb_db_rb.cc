@@ -285,9 +285,7 @@ extern "C" {
   }
 
   VALUE raise_status_error(rocksdb::Status *status) {
-    char const *error_text = status->ToString().c_str();
-    rb_raise(cRocksdb_status_error, "%s", error_text);
-
+    rb_raise(cRocksdb_status_error, "%s", status->ToString().c_str());
     return Qnil;
   }
 
