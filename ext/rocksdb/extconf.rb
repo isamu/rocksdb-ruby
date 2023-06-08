@@ -1,6 +1,8 @@
 require "mkmf"
 
-dir_config('rocksdb')
+librocksdb_root = File.expand_path('../../librocksdb', __FILE__)
+
+dir_config('rocksdb', File.join(librocksdb_root, 'include'), librocksdb_root)
 cxx = RbConfig::CONFIG["CXX"]
 RbConfig::CONFIG["CPP"] = "#{cxx} -E -std=gnu++17"
 RbConfig::CONFIG["CC"] = "#{cxx} -std=gnu++17"

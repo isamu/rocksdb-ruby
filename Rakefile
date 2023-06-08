@@ -13,3 +13,17 @@ task :build do
 end
 
 task :spec => :build
+
+namespace :librocksdb do
+  file 'ext/librocksdb' do
+    Dir.chdir('ext/') do
+      `git clone --depth 1 --branch v8.1.1 https://github.com/facebook/rocksdb.git librocksdb`
+    end
+  end
+
+  task :build => 'ext/librocksdb' do
+    Dir.chdir('ext/librocksdb/') do
+      sh "V=1 DEBUG_LEVEL=0 make shared_lib"
+    end
+  end
+end
