@@ -11,8 +11,6 @@ This gem contains Ruby bindings so that you can use it from your Ruby process.
 
 ## Installation
 
-First, install rocksdb: https://github.com/facebook/rocksdb/blob/master/INSTALL.md
-
 Add this line to your application's Gemfile:
 
 ```ruby
@@ -33,7 +31,7 @@ $ gem install rocksdb-ruby
 
 `rocksdb-ruby` is tested against Ruby 2.4, 2.5 and 2.6 on Linux and macOS platforms. However, it might work on other platforms.
 
-`rocksdb-ruby` supports rocksb 4.5.1 and later. It is tested against master branch with all supported ruby version. It is also tested against few specific version, available in popular distributions. Check `.travis.yml` for details.
+`rocksdb-ruby` contains librocksdb 8.1.1.
 
 JRuby, TruffleRuby and Rubinius are not supported at the moment.
 

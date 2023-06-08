@@ -19,3 +19,4 @@ ext/**/*.o
 ext/**/Makefile
 ext/**/*.log
 ext/**/*.bundle
+ext/librocksdb*

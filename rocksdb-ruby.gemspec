@@ -4,7 +4,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'rocksdb/ruby/version'
 
 Gem::Specification.new do |spec|
-  spec.extensions = ["ext/rocksdb/extconf.rb"]
+  spec.extensions = ["Rakefile"]
 
   spec.name          = "rocksdb-ruby"
   spec.version       = Rocksdb::Ruby::VERSION
@@ -20,7 +20,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["ext", "lib"]
 
   spec.add_development_dependency "bundler", "~> 2.0"
-  spec.add_development_dependency "rake", "~> 12.0"
+  spec.add_development_dependency "rake", "~> 13.0"
   spec.add_development_dependency "rspec", "~> 3.0"
   spec.add_development_dependency "rspec-core", "~> 3.0"
 end
