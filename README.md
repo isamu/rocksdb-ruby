@@ -1,5 +1,5 @@
-[![Build Status](https://app.travis-ci.com/isamu/rocksdb-ruby.svg?branch=master)](https://app.travis-ci.com/github/isamu/rocksdb-ruby)
-[![Gem Version](https://badge.fury.io/rb/rocksdb-ruby.svg)](https://badge.fury.io/rb/rocksdb-ruby)
+![Build Status](https://github.com/isamu/rocksdb-ruby/actions/workflows/ruby.yml/badge.svg)
+![Gem Version](https://badge.fury.io/rb/rocksdb-ruby.svg)
 
 # RocksDB
 
