@@ -2,6 +2,8 @@
 require "bundler/gem_tasks"
 require "rspec/core/rake_task"
 
+require_relative "lib/rocksdb/ruby/version"
+
 gem_root = File.expand_path("..", __FILE__)
 librocksdb_build = File.join(gem_root, "ext", "librocksdb-build")
 librocksdb_install = File.join(gem_root, "ext", "librocksdb")
